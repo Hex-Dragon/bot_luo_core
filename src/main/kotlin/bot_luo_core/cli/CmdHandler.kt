@@ -149,7 +149,10 @@ object CmdHandler {
 
         //参数错误或条件错误，选择所有错误中最合适的抛出
         if (parseFatal.isNotEmpty()) {
-            throw parseFatal.maxByOrNull { it.pos }!!
+            val max = parseFatal.maxOf { it.pos }
+            val list = parseFatal.filter { it.pos == max }
+            if (list.size == 1) throw list[0]
+            else throw ParserFatalPackage(max, list)
         }
 
         if (checkerFatal.isNotEmpty()) {

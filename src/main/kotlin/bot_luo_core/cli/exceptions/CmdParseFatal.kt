@@ -1,6 +1,7 @@
 package bot_luo_core.cli.exceptions
 
 import net.mamoe.mirai.message.data.Message
+import net.mamoe.mirai.message.data.MessageChainBuilder
 import net.mamoe.mirai.message.data.toPlainText
 import kotlin.reflect.KType
 
@@ -90,4 +91,25 @@ class UncompletedContent(override val pos: Int, argName: String?, detail: String
 class SurplusArg(override val pos: Int, input: String?): CmdParseFatal() {
     override val output = "多余的参数“$input”".toPlainText()
     override val message = "多余的参数“$input”  pos:$pos"
+}
+
+/**
+ * 多个等位异常打包
+ */
+class ParserFatalPackage(override val pos: Int, val exceptions: Collection<CmdParseFatal>): CmdParseFatal() {
+    override val output: Message get() {
+        val mcb = MessageChainBuilder()
+        var i = 0
+        exceptions.forEach { ex ->
+            if (mcb.find { it.contentEquals(ex.output) } == null) {
+                if (i++ > 0)
+                    mcb.add("\n")
+                mcb.add(ex.output)
+            }
+        }
+        return if (i > 1) "\n".toPlainText() + mcb.build()
+        else mcb.build()
+    }
+
+    override val message: String get() = exceptions.joinToString("\n") { it.message }
 }

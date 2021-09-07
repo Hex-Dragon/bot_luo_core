@@ -2,8 +2,8 @@ package bot_luo_core.cli
 
 import bot_luo_core.bot.BotContact
 import bot_luo_core.bot.MultiBotHandler
-import bot_luo_core.cli.CliConfig.REPL_NO
-import bot_luo_core.cli.CliConfig.REPL_YES
+import bot_luo_core.data.Config.REPL_NO
+import bot_luo_core.data.Config.REPL_YES
 import bot_luo_core.data.Group
 import bot_luo_core.data.User
 import bot_luo_core.util.Logger

@@ -25,7 +25,7 @@ class ListCmd(context: CmdContext) : Cmd(context) {
         table.th("命令列表 —— 群组 ${group.name}(${group.id})").br()
 
         val map = HashMap<String, Pair<Boolean, CmdExecutable>>()
-        for (cmd in CmdCatalog.COMMANDS) {
+        for (cmd in CmdCatalog.COMMANDS.sortedBy { it.id }) {
             if (map[cmd.cmdName]?.first == true) continue
             try {
                 justCheck.forEach { it.createInstance().check(cmd, context) }
@@ -46,7 +46,7 @@ class ListCmd(context: CmdContext) : Cmd(context) {
         val table = TableBuilder(4)
         table.th("命令列表 —— 群组 ${group.name}(${group.id})").br()
 
-        for (cex in CmdCatalog.COMMANDS) {
+        for (cex in CmdCatalog.COMMANDS.sortedBy { it.id }) {
             try {
                 justCheck.forEach { it.createInstance().check(cex, context) }
                 table.tr(if (group.readCmdData(cex).working) "[√]" else "[×]").tb(cex.idFixed).tb(cex.subTitle)
@@ -63,7 +63,7 @@ class ListCmd(context: CmdContext) : Cmd(context) {
         val table = TableBuilder(4)
         table.th("命令列表 —— 群组 ${group.name}(${group.id})").br()
 
-        for (cex in CmdCatalog.COMMANDS) {
+        for (cex in CmdCatalog.COMMANDS.sortedBy { it.id }) {
             table.tr(if (group.readCmdData(cex).working) "[√]" else "[×]").tb(cex.idFixed).tb(cex.subTitle)
         }
 

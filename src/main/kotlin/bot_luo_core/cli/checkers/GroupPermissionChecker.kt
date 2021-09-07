@@ -11,8 +11,8 @@ class GroupPermissionChecker: Checker {
     override val name = "群组权限检定器"
 
     override fun check(cmd: CmdExecutable, context: CmdContext) {
-        val p = context.groupF.pmsGroup.readPmsOn(cmd)
-        if (p >= cmd.pmsLevel) fatal("群组权限不足，要求：${cmd.pmsLevel.name} 群组权限：${p.name}".toPlainText())
+        val p = context.group.pmsGroup.readPmsOn(cmd)
+        if (p < cmd.pmsLevel) fatal("群组权限不足，要求：${cmd.pmsLevel.name} 群组权限：${p.name}".toPlainText())
     }
 
 }

@@ -29,8 +29,6 @@ class User internal constructor (
 ) : CmdDataObj("data/users/$id.json"), BotContact {
     override val contactType = BotContactType.Single
     override val defaultData: CmdData get() = CmdData(0,0,0,0,true)//用户命令默认开启
-    override val autoSaveInterval = 30000L
-    override val saveAndUnload = true
 
     val virtual: Boolean = id==0L
 

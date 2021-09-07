@@ -20,27 +20,25 @@ abstract class DataObj(
     /**
      * JSON数据文件路径
      */
-    private val filePath: String
+    private val filePath: String,
+    /**
+     * 自动保存间隔时间(ms)
+     *
+     * 在访问空闲超过间隔后自动保存
+     */
+    private val autoSaveInterval: Long,
+    /**
+     * 是否自动卸载
+     *
+     * 为`true`时将把读取数据算作访问，且在自动保存后调用[unload]方法
+     */
+    private val saveAndUnload: Boolean
 ): Mutex by Mutex() {
 
     /**
      * 使用[getObj]和[setObj]进行访问
      */
     val jsonObj: JSONObject
-
-    /**
-     * 自动保存间隔时间(ms)
-     *
-     * 在访问空闲超过间隔后自动保存
-     */
-    abstract val autoSaveInterval: Long
-
-    /**
-     * 是否自动卸载
-     *
-     * 为`true`时将把读取数据算作访问，且在自动保存后调用[unload]方法
-     */
-    abstract val saveAndUnload: Boolean
 
     private var saveJob: Job? = null
     private val context = Dispatchers.IO
@@ -107,7 +105,7 @@ abstract class DataObj(
             JSON.parseObject(file.readText().ifBlank { "{}" })
         else
             JSONObject(HashMap())
-        launchSaveJob()
+        if (saveAndUnload) launchSaveJob()
     }
 
     /**
@@ -174,6 +172,12 @@ abstract class DataObj(
 
     companion object {
         val saveJobs = ArrayList<Job>()
+
+//        fun saveAll() {
+//            saveJobs.forEach {
+//                it.start()
+//            }
+//        }
     }
 
 }

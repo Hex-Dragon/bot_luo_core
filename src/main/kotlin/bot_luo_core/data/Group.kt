@@ -20,8 +20,6 @@ class Group internal constructor(
     override val contactType = BotContactType.Group
     override val defaultData: CmdData
         get() = CmdData(0,0,0,0,false)//群组命令默认关闭
-    override val autoSaveInterval = 30000L
-    override val saveAndUnload = true
 
     val virtual: Boolean = id==0L
 

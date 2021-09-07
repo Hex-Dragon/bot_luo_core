@@ -125,7 +125,7 @@ object MultiBotHandler {
             if (this.isIntercepted) Logger.log(this, Level.INFO) else Logger.log(this, Level.DEBUG)
         }
         GlobalEventChannel.subscribeAlways<MessagePreSendEvent> {
-            this.cancel()
+            this.cancel()   //TODO 解除张口结舌之术
         }
     }
 

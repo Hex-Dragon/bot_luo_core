@@ -8,7 +8,8 @@ data class CmdReceipt(
     val state: CmdExitState,
     val messages: ArrayList<String> = ArrayList(),
     val f: String? = null,
-    val b: String? = null
+    val b: String? = null,
+    val uploadOutputFile: Int = 0
 ) {
     /**
      * 允许撤销操作

@@ -7,14 +7,20 @@ import bot_luo_core.data.Config.REPL_YES
 import bot_luo_core.data.Group
 import bot_luo_core.data.User
 import bot_luo_core.util.Logger
+import bot_luo_core.util.Logger.sendMessageWithLog
 import bot_luo_core.util.Text.toLowercase
 import bot_luo_core.util.Time
 import kotlinx.coroutines.TimeoutCancellationException
 import net.mamoe.mirai.contact.Contact
+import net.mamoe.mirai.contact.Contact.Companion.uploadImage
+import net.mamoe.mirai.contact.FileSupported
 import net.mamoe.mirai.contact.MemberPermission
 import net.mamoe.mirai.event.events.EventCancelledException
 import net.mamoe.mirai.message.MessageReceipt
 import net.mamoe.mirai.message.data.*
+import net.mamoe.mirai.utils.ExternalResource.Companion.toExternalResource
+import net.mamoe.mirai.utils.RemoteFile.Companion.uploadFile
+import java.io.File
 import kotlin.jvm.Throws
 
 class CmdContext(
@@ -32,6 +38,13 @@ class CmdContext(
         group: Group,
         time: Long = Time.time()
     ): this(reader, user, group, user, group, time)
+
+    /**
+     * - 0: 不允许上传
+     * - 1: 当输出过大时允许上传文件
+     * - 2: 始终上传
+     */
+    var uploadOutputFile: Int = 0
 
     /**
      * 直接回复消息所使用的对象，可能为`null`
@@ -116,6 +129,18 @@ class CmdContext(
         return null
     }
 
+    suspend fun uploadOutput(): MessageReceipt<Contact>? {
+        withBackendBot{ contact ->
+            if (contact !is FileSupported) return null
+            val file = File.createTempFile("output-${this.hashCode()}",".txt")
+            file.deleteOnExit()
+            file.toExternalResource().use { resource ->
+                return  contact.sendMessageWithLog(contact.uploadFile("${this.reader.original.content.replace(' ','_')}.txt",resource))
+            }
+        }
+        return null
+    }
+
     @Throws(TimeoutCancellationException::class)
     suspend inline fun nextMessage(timeoutMillis: Long = -1L): MessageChain = MultiBotHandler.catchNextMessage(user.id, group.id, timeoutMillis)
 
@@ -158,6 +183,21 @@ class CmdContext(
      */
     inline fun withServeBot(pms: MemberPermission = MemberPermission.MEMBER, action: (contact: Contact)->Unit): Boolean {
         return when(subject) {
+            is Group -> group.withServeBot(pms, action)
+            is User -> user.withServeBot(action)
+            else -> false
+        }
+    }
+
+    /**
+     * 获取一个[receiver]的Mirai联系对象进行动作
+     *
+     * 获取失败返回`false`并放弃执行动作
+     *
+     * @return 是否获取成功
+     */
+    inline fun withBackendBot(pms: MemberPermission = MemberPermission.MEMBER, action: (contact: Contact)->Unit): Boolean {
+        return when(receiver) {
             is Group -> group.withServeBot(pms, action)
             is User -> user.withServeBot(action)
             else -> false

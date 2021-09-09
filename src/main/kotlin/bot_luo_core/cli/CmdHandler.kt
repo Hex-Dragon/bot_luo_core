@@ -4,6 +4,7 @@ import bot_luo_core.bot.VirtualMessageEvent
 import bot_luo_core.cli.Checker.Companion.order
 import bot_luo_core.cli.exceptions.*
 import bot_luo_core.data.Config.CMD_PREFIX
+import bot_luo_core.data.Config.MAX_OUTPUT_LEN
 import bot_luo_core.data.Groups
 import bot_luo_core.data.Users
 import bot_luo_core.data.withAccessing
@@ -68,7 +69,31 @@ object CmdHandler {
         } catch (e: Exception) {
             context.sendOutputWithLog("发生异常：${e::class.simpleName}\n${e.message}".toPlainText())
         }
-        context.sendOutputWithLog()
+        when (context.uploadOutputFile) {
+            0 -> {
+                if (context.getOutput().content.length > MAX_OUTPUT_LEN) {
+                    context.sendOutputWithLog("输出过大，考虑使用dumpfile命令获取输出")
+                } else {
+                    context.sendOutputWithLog()
+                }
+            }
+            1 -> {
+                if (context.getOutput().content.length > MAX_OUTPUT_LEN) {
+                    val receipt = context.uploadOutput()
+                    if (receipt == null) {
+                        context.sendOutputWithLog("输出上传文件失败")
+                    }
+                } else {
+                    context.sendOutputWithLog()
+                }
+            }
+            2 -> {
+                val receipt = context.uploadOutput()
+                if (receipt == null) {
+                    context.sendOutputWithLog("输出上传文件失败")
+                }
+            }
+        }
     }
 
     /**
@@ -121,6 +146,8 @@ object CmdHandler {
                         gd.lastTime = context.time
                         context.group.writeCmdData(cmd, gd)
                     }
+
+                    context.uploadOutputFile = maxOf(context.uploadOutputFile, res.uploadOutputFile)
                 } catch (e: Exception) {
                     when(e) {
                         is CliException -> throw e

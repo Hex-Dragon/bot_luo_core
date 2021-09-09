@@ -8,8 +8,8 @@ import bot_luo_core.cli.exceptions.EmptyTag
 import bot_luo_core.cli.exceptions.HandlerFatal
 import bot_luo_core.cli.exceptions.TagMultiValued
 import bot_luo_core.data.Group
+import bot_luo_core.data.GroupTags
 import bot_luo_core.data.Groups
-import bot_luo_core.data.Tags
 import kotlin.reflect.KType
 
 class GroupArgHandler: ArgHandler<Group> {
@@ -21,7 +21,7 @@ class GroupArgHandler: ArgHandler<Group> {
 
         if (reader.canRead() && reader.peek() == '#') {
             val tag = reader.readString()
-            val res = Tags.readGroupTag(tag, context) ?: throw ContextNeeded(pos, argName)
+            val res = GroupTags.readGroupTag(tag, context) ?: throw ContextNeeded(pos, argName)
             when (res.size) {
                 0 -> throw EmptyTag(pos, tag)
                 1 -> return  res[0]

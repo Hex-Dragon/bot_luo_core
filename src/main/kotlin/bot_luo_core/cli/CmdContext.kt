@@ -130,10 +130,13 @@ class CmdContext(
     }
 
     suspend fun uploadOutput(): MessageReceipt<Contact>? {
+        val text = getOutput().content
+        if (text.isBlank()) return null
         withBackendBot{ contact ->
             if (contact !is FileSupported) return null
-            val file = File.createTempFile("output-${this.hashCode()}",".txt")
+            val file = File.createTempFile("output-${this.hashCode().toString(16)}",".txt")
             file.deleteOnExit()
+            file.writeText(text)
             file.toExternalResource().use { resource ->
                 return  contact.sendMessageWithLog(contact.uploadFile("${this.reader.original.content.replace(' ','_')}.txt",resource))
             }

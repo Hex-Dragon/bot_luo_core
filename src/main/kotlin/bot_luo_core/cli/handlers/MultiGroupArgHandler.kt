@@ -33,7 +33,7 @@ class MultiGroupArgHandler: ArgHandler<ArrayList<Group>> {
 
         if (reader.canRead() && reader.peek() == '#') {
             val tag = reader.readString()
-            val res = Tags.readGroupTag(tag, context) ?: throw ContextNeeded(pos, argName)
+            val res = GroupTags.readGroupTag(tag, context) ?: throw ContextNeeded(pos, argName)
             if (res.isNotEmpty())
                 return res
             else

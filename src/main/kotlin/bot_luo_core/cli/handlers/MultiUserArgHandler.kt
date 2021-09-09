@@ -6,12 +6,9 @@ import bot_luo_core.cli.MessageReader
 import bot_luo_core.cli.exceptions.ContextNeeded
 import bot_luo_core.cli.exceptions.EmptyTag
 import bot_luo_core.cli.exceptions.HandlerFatal
-import bot_luo_core.cli.exceptions.SyntaxError
-import bot_luo_core.data.Tags
 import bot_luo_core.data.User
+import bot_luo_core.data.UserTags
 import bot_luo_core.data.Users
-import net.mamoe.mirai.message.data.toPlainText
-import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.reflect.KType
 
@@ -37,7 +34,7 @@ class MultiUserArgHandler: ArgHandler<ArrayList<User>> {
 
         if (reader.canRead() && reader.peek() == '#') {
             val tag = reader.readString()
-            val res = Tags.readUserTag(tag, context) ?: throw ContextNeeded(pos, argName)
+            val res = UserTags.readUserTag(tag, context) ?: throw ContextNeeded(pos, argName)
             if (res.isNotEmpty())
                 return res
             else

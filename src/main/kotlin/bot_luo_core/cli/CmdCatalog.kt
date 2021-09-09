@@ -20,6 +20,7 @@ object CmdCatalog {
             AnnounceCmd::class,
             ControlCmd::class,
             DebugCmd::class,
+            DumpFileCmd::class,
             ExecuteCmd::class,
             HelpCmd::class,
             ListCmd::class,

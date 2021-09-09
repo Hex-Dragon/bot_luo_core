@@ -1,8 +1,11 @@
 package bot_luo_core.bot
 
 import bot_luo_core.cli.CmdHandler
+import bot_luo_core.data.DataObj
 import bot_luo_core.util.JsonWorker
 import bot_luo_core.util.Logger
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.runBlocking
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.BotFactory
 import net.mamoe.mirai.contact.*
@@ -10,7 +13,6 @@ import net.mamoe.mirai.containsFriend
 import net.mamoe.mirai.event.*
 import net.mamoe.mirai.event.events.*
 import net.mamoe.mirai.message.data.MessageChain
-import net.mamoe.mirai.message.data.content
 import net.mamoe.mirai.utils.BotConfiguration
 import org.apache.logging.log4j.Level
 
@@ -124,9 +126,11 @@ object MultiBotHandler {
             CmdHandler.call(this)
             if (this.isIntercepted) Logger.log(this, Level.INFO) else Logger.log(this, Level.DEBUG)
         }
-        GlobalEventChannel.subscribeAlways<MessagePreSendEvent> {
-            this.cancel()   //TODO 解除张口结舌之术
-        }
+//        GlobalEventChannel.subscribeAlways<MessagePreSendEvent> {
+//            this.cancel()   //TODO 解除张口结舌之术
+//        }
+
+        Runtime.getRuntime().addShutdownHook(Thread{ saveAll() })
     }
 
     /**
@@ -258,5 +262,11 @@ object MultiBotHandler {
         }
     }
 
+    fun saveAll() {
+        runBlocking {
+            DataObj.savingJobs.values.forEach { it.start(); it.join() }
+            DataObj.savingJobs.keys.forEach { it.cancelAndJoin() }
+        }
+    }
 
 }

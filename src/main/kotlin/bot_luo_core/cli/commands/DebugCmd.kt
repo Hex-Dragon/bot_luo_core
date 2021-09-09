@@ -22,7 +22,7 @@ class DebugCmd(context: CmdContext) : Cmd(context) {
         table.th("调试信息 ——").br()
         table.tr("active_groups:").tb(Groups.activeGroupsCount)
         table.tr("active_users:").tb(Users.activeUsersCount)
-        table.tr("save_jobs:").tb(DataObj.saveJobs.size)
+        table.tr("save_jobs:").tb(DataObj.savingJobs.size)
         context.print(table.toString())
         return SUCCESS
     }

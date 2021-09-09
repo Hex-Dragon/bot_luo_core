@@ -7,8 +7,8 @@ import bot_luo_core.cli.exceptions.ContextNeeded
 import bot_luo_core.cli.exceptions.EmptyTag
 import bot_luo_core.cli.exceptions.HandlerFatal
 import bot_luo_core.cli.exceptions.TagMultiValued
-import bot_luo_core.data.Tags
 import bot_luo_core.data.User
+import bot_luo_core.data.UserTags
 import bot_luo_core.data.Users
 import kotlin.reflect.KType
 
@@ -26,7 +26,7 @@ class UserArgHandler: ArgHandler<User> {
 
         if (reader.canRead() && reader.peek() == '#') {
             val tag = reader.readString()
-            val res = Tags.readUserTag(tag, context) ?: throw ContextNeeded(pos, argName)
+            val res = UserTags.readUserTag(tag, context) ?: throw ContextNeeded(pos, argName)
             when (res.size) {
                 0 -> throw EmptyTag(pos, tag)
                 1 -> return  res[0]

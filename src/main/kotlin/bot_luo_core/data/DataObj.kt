@@ -6,7 +6,6 @@ import com.alibaba.fastjson.TypeReference
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import java.io.File
 
 /**
@@ -41,7 +40,6 @@ abstract class DataObj(
     val jsonObj: JSONObject
 
     private var saveJob: Job? = null
-    private val context = Dispatchers.IO
 
     /**
      * 访问数量
@@ -84,18 +82,18 @@ abstract class DataObj(
      */
     private fun launchSaveJob() {
         saveJob?.cancel()
-        saveJobs.remove(saveJob)
-        saveJob = CoroutineScope(context).launch {
+        savingJobs.remove(saveJob)
+        saveJob = scope.launch {
             try {
                 delay(autoSaveInterval)
             } catch (ignore: CancellationException) {
                 return@launch
             }
-            if (changed) save()
+            if (changed) savingJobs[saveJob]?.start()
             if (saveAndUnload) unload()
         }.apply {
-            saveJobs.add(this)
-            this.invokeOnCompletion { saveJobs.remove(this) }
+            savingJobs[this] = scope.launch(start = CoroutineStart.LAZY) {save()}
+            this.invokeOnCompletion { savingJobs.remove(this) }
         }
     }
 
@@ -171,13 +169,8 @@ abstract class DataObj(
     }
 
     companion object {
-        val saveJobs = ArrayList<Job>()
-
-//        fun saveAll() {
-//            saveJobs.forEach {
-//                it.start()
-//            }
-//        }
+        val savingJobs = HashMap<Job, Job>()
+        val scope = CoroutineScope(Dispatchers.IO)
     }
 
 }

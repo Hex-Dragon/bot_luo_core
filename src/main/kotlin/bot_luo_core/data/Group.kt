@@ -18,7 +18,7 @@ class Group internal constructor(
 ) : CmdDataObj("data/groups/$id.json"), BotContact {
     override val contactType = BotContactType.Group
     override val defaultData: CmdData
-        get() = CmdData(0,0,0,0,false)//群组命令默认关闭
+        get() = CmdData(0,0,0,false)//群组命令默认关闭
 
     val virtual: Boolean = id==0L
 

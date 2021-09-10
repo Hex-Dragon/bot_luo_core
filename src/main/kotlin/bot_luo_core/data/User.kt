@@ -19,7 +19,7 @@ class User internal constructor (
     override var bot: Bot? = null
 ) : CmdDataObj("data/users/$id.json"), BotContact {
     override val contactType = BotContactType.Single
-    override val defaultData: CmdData get() = CmdData(0,0,0,0,true)//用户命令默认开启
+    override val defaultData: CmdData get() = CmdData(0,0,0,true)//用户命令默认开启
 
     val virtual: Boolean = id==0L
 

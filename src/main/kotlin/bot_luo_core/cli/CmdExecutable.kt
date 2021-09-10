@@ -78,7 +78,6 @@ class CmdExecutable(private val cmd: KClass<out Cmd>, private val meth: KFunctio
         } else {
             meth.callBy(args)
         }
-        ins.onExit(receipt)
         return receipt
     }
 

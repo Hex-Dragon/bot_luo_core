@@ -4,6 +4,8 @@ import bot_luo_core.cli.CmdHandler
 import bot_luo_core.data.DataObj
 import bot_luo_core.util.JsonWorker
 import bot_luo_core.util.Logger
+import bot_luo_core.util.Time
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.runBlocking
 import net.mamoe.mirai.Bot
@@ -15,12 +17,18 @@ import net.mamoe.mirai.event.events.*
 import net.mamoe.mirai.message.data.MessageChain
 import net.mamoe.mirai.utils.BotConfiguration
 import org.apache.logging.log4j.Level
+import kotlin.jvm.Throws
 
 /**
  * # 罗伯特
  */
 object BotLuo {
     private const val FILE_PATH = "data/bots.json"
+
+    /**
+     * ## 罗伯特开机时间
+     */
+    val startAt = Time.time()
 
     /**
      * ## 所有机器人实例列表
@@ -227,6 +235,7 @@ object BotLuo {
      *
      * @param filter 过滤消息直到获取到符合要求的消息（返回`true`）
      */
+    @Throws(TimeoutCancellationException::class)
     suspend fun catchNextMessage(userId: Long, groupId: Long, timeoutMillis: Long = -1L, filter: (msg: MessageChain)->Boolean = {true}): MessageChain {
         return syncFromEvent<Event, MessageChain>(timeoutMillis, EventPriority.MONITOR) { event ->
             return@syncFromEvent when (event) {

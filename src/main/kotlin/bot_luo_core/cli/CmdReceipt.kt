@@ -5,7 +5,10 @@ import kotlin.collections.ArrayList
 
 data class CmdReceipt(
     val time: Long,
-    val state: CmdExitState,
+    val success: Boolean,
+    val addCount: Boolean,
+    val setTime: Boolean,
+    val addSpecialCount: Boolean,
     val messages: ArrayList<String> = ArrayList(),
     val f: String? = null,
     val b: String? = null,
@@ -16,12 +19,5 @@ data class CmdReceipt(
      */
     fun undoable(): Boolean {
         return f!=null && b!=null
-    }
-
-    /**
-     * 需要保存
-     */
-    fun needSave(): Boolean {
-        return state.setTime || state.addCount
     }
 }

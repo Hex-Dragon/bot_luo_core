@@ -155,10 +155,31 @@ object Time {
             sb.append("${sec}秒")
         return sb.toString()
     }
+
     /**
      * 解析相对时刻（ms）为文本
      * @param [time] 正数为之前，负数为之后
      * @return [String] 时间文本
      */
     fun formatRelativeTime(time: Long) = formatSpan(abs(time)) + if (time>0) "前" else "后"
+
+    /**
+     * 时间差
+     */
+    infix fun Long.spanFrom(another: Long): String = formatSpan(another - this)
+
+    /**
+     * 简略时间差
+     */
+    infix fun Long.spanFromE(another: Long): String = formatSpanE(another - this)
+
+    /**
+     * 相对时间
+     */
+    infix fun Long.relativeTo(another: Long): String = formatRelativeTime(another - this)
+
+    /**
+     * 简略相对时间
+     */
+    infix fun Long.relativeToE(another: Long): String = formatRelativeTimeE(another - this)
 }

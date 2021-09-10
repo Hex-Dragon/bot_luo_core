@@ -8,9 +8,11 @@ import bot_luo_core.data.Config.MAX_OUTPUT_LEN
 import bot_luo_core.data.Groups
 import bot_luo_core.data.Users
 import bot_luo_core.data.withAccessing
+import bot_luo_core.data.withLockedAccessing
 import bot_luo_core.util.Logger
 import bot_luo_core.util.Text.firstNotWhitespace
 import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.runBlocking
 import net.mamoe.mirai.event.events.GroupAwareMessageEvent
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.At
@@ -123,29 +125,29 @@ object CmdHandler {
 
                     val res = cmd.executeWith(context, args)
 
-                    Logger.log(cmd, context, "执行完成：${res.state}")
+                    Logger.log(cmd, context, "执行完成：${res.success}")
 
-                    if (res.state.addCount) {
-                        val ud = context.user.readCmdData(cmd)
-                        ud.totalCount++
-                        ud.dayCount++
-                        ud.specialCount++
-                        context.user.writeCmdData(cmd, ud)
-                        val gd = context.group.readCmdData(cmd)
-                        gd.totalCount++
-                        gd.dayCount++
-                        gd.specialCount++
-                        context.group.writeCmdData(cmd, gd)
-                    }
+                    runBlocking { withLockedAccessing(context.user, context.group) {
+                        if (res.addCount) {
+                            val ud = context.user.readCmdData(cmd)
+                            ud.totalCount++
+                            ud.dayCount++
+                            context.user.writeCmdData(cmd, ud)
+                            val gd = context.group.readCmdData(cmd)
+                            gd.totalCount++
+                            gd.dayCount++
+                            context.group.writeCmdData(cmd, gd)
+                        }
 
-                    if (res.state.setTime) {
-                        val ud = context.user.readCmdData(cmd)
-                        ud.lastTime = context.time
-                        context.user.writeCmdData(cmd, ud)
-                        val gd = context.group.readCmdData(cmd)
-                        gd.lastTime = context.time
-                        context.group.writeCmdData(cmd, gd)
-                    }
+                        if (res.setTime) {
+                            val ud = context.user.readCmdData(cmd)
+                            ud.lastTime = context.time
+                            context.user.writeCmdData(cmd, ud)
+                            val gd = context.group.readCmdData(cmd)
+                            gd.lastTime = context.time
+                            context.group.writeCmdData(cmd, gd)
+                        }
+                    } }
 
                     context.uploadOutputFile = maxOf(context.uploadOutputFile, res.uploadOutputFile)
                 } catch (e: Exception) {

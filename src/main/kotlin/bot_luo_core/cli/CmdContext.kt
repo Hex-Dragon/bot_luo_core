@@ -143,9 +143,17 @@ class CmdContext(
         return null
     }
 
+    /**
+     * 捕获下一条消息，超时抛出异常
+     */
     @Throws(TimeoutCancellationException::class)
     suspend inline fun nextMessage(timeoutMillis: Long = -1L): MessageChain = BotLuo.catchNextMessage(user.id, group.id, timeoutMillis)
 
+    /**
+     * 捕获下一条消息，带超时动作
+     *
+     * 超时返回空消息链
+     */
     suspend inline fun nextMessage(timeoutMillis: Long = -1L, timeoutAction: () -> Unit): MessageChain {
         try {
             return BotLuo.catchNextMessage(user.id, group.id, timeoutMillis)
@@ -154,7 +162,21 @@ class CmdContext(
         }
         return EmptyMessageChain
     }
-    suspend inline fun nextYorN(timeoutMillis: Long, noinline timeoutAction: suspend () -> Boolean): Boolean {
+
+    /**
+     * 带过滤器的[nextMessage]
+     *
+     * 超时返回`null`
+     */
+    suspend inline fun nextMessageFiltered(timeoutMillis: Long = -1L, noinline filter: (Message)-> Boolean): MessageChain? {
+        return try {
+            BotLuo.catchNextMessage(user.id, group.id, timeoutMillis, filter)
+        } catch (e: TimeoutCancellationException) {
+            null
+        }
+    }
+
+    suspend inline fun nextYorN(timeoutMillis: Long, timeoutAction: () -> Boolean): Boolean {
         return try {
             BotLuo.catchNextMessage(user.id, group.id, timeoutMillis) {
                 it.content.trim().toLowercase() in REPL_YES + REPL_NO

@@ -144,7 +144,7 @@ abstract class DataObj(
             jsonObj.getObject(key, tr)
         } else null
     }
-    inline fun <reified T: Map<*, *>> getObj(): T? {
+    inline fun <reified T: Map<*, *>> getObj(): T {
         val tr = object : TypeReference<T>() {}
         return jsonObj.toJavaObject(tr)
     }

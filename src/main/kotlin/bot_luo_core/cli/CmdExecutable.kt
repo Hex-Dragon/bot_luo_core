@@ -51,7 +51,10 @@ class CmdExecutable(private val cmd: KClass<out Cmd>, private val meth: KFunctio
         else -> "${CMD_PREFIX[0]}$id(${methAnn.alias.joinToString(",")})"
     }
 
-    val checkers = CHECKERS.filter { it !in methAnn.ignoreCheckers }
+    val checkers = LinkedHashSet<KClass<out Checker>>().apply{
+        addAll(CHECKERS.filter { c -> c !in methAnn.ignoreCheckers })
+        addAll(methAnn.addonCheckers)
+    }
 
     val alias = cmdAnn.alias
     val subAlias = methAnn.alias

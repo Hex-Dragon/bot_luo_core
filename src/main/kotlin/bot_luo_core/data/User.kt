@@ -2,21 +2,12 @@ package bot_luo_core.data
 
 import bot_luo_core.bot.BotContact
 import bot_luo_core.bot.BotContactType
-import bot_luo_core.bot.MultiBotHandler
-import bot_luo_core.cli.CmdExecutable
+import bot_luo_core.bot.BotLuo
 import bot_luo_core.cli.CmdReceipt
-import com.alibaba.fastjson.annotation.JSONField
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.contact.*
-import net.mamoe.mirai.contact.Group
 import net.mamoe.mirai.contact.User
 import net.mamoe.mirai.message.data.At
-import net.mamoe.mirai.message.data.Message
-import kotlin.coroutines.CoroutineContext
 
 /**
  * # 用户类
@@ -55,7 +46,7 @@ class User internal constructor (
 
     inline fun withServeBot(action: (contact: User)->Unit): Boolean {
         if (virtual) return false
-        val contact = if (bot == null) MultiBotHandler.getContactableBots(this).map { it.getFriend(id)?:it.getStranger(id) }.randomOrNull()
+        val contact = if (bot == null) BotLuo.getContactableBots(this).map { it.getFriend(id)?:it.getStranger(id) }.randomOrNull()
         else bot?.getFriend(id)?:bot?.getStranger(id)
         return if (contact == null) false
         else {

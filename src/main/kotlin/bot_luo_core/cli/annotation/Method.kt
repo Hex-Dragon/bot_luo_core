@@ -21,8 +21,17 @@ annotation class Method(
 
     /**
      * 忽略的检查器
+     *
+     * @see[Checker.CHECKERS]
      */
     val ignoreCheckers: Array<KClass<out Checker>> = [],
+
+    /**
+     * 追加的检测器
+     *
+     * @see[Checker.CHECKERS]
+     */
+    val addonCheckers: Array<KClass<out Checker>> = [],
 
     /**
      * 默认的权限配置，用于生成默认权限组文件

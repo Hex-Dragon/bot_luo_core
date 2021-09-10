@@ -2,11 +2,10 @@ package bot_luo_core.data
 
 import bot_luo_core.bot.BotContact
 import bot_luo_core.bot.BotContactType
-import bot_luo_core.bot.MultiBotHandler
+import bot_luo_core.bot.BotLuo
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.contact.Group
 import net.mamoe.mirai.contact.MemberPermission
-import net.mamoe.mirai.message.data.Message
 
 /**
  * # 群组类
@@ -36,7 +35,7 @@ class Group internal constructor(
 
     inline fun withServeBot(pms: MemberPermission = MemberPermission.MEMBER, action: (contact: Group)->Unit): Boolean {
         if (virtual) return false
-        val contact = if (bot == null) MultiBotHandler.getContactableBots(this).map { it.getGroup(id) }.filter { it != null && it.botPermission >= pms }.randomOrNull()
+        val contact = if (bot == null) BotLuo.getContactableBots(this).map { it.getGroup(id) }.filter { it != null && it.botPermission >= pms }.randomOrNull()
         else bot?.getGroup(id)
         return if (contact == null) false
         else {

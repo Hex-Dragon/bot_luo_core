@@ -22,8 +22,15 @@ interface Checker {
 
     companion object {
 
-        //排序与最终抛出的可能性有关
-        val CHECKERS = arrayListOf<KClass<out Checker>>(
+        /**
+         * ### 默认启用的[Checker]
+         *
+         * 默认情况下每个[命令方法][CmdExecutable]都会启用包含的Checker，可以在
+         * [bot_luo_core.cli.annotation.Method]注解中设置ignoreCheckers忽略不需要的Checker
+         *
+         * 也可以在[bot_luo_core.cli.annotation.Method]注解中设置addonCheckers附加其他Checker
+         */
+        val CHECKERS = arrayListOf(
             BotRunningChecker::class,
             GroupCmdWorkingChecker::class,
             UserCmdWorkingChecker::class,

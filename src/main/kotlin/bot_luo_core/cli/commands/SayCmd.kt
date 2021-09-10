@@ -1,6 +1,6 @@
 package bot_luo_core.cli.commands
 
-import bot_luo_core.bot.MultiBotHandler
+import bot_luo_core.bot.BotLuo
 import bot_luo_core.bot.VirtualMessageEvent
 import bot_luo_core.cli.*
 import bot_luo_core.cli.annotation.Argument
@@ -30,8 +30,8 @@ class SayCmd(context: CmdContext) : Cmd(context) {
     ): CmdReceipt { with(context) {
 
         if (!group.virtual) {
-            group.bot = if (user.virtual) MultiBotHandler.getContactableBots(group).randomOrNull()
-            else MultiBotHandler.getBotOrNull(user.id)
+            group.bot = if (user.virtual) BotLuo.getContactableBots(group).randomOrNull()
+            else BotLuo.getBotOrNull(user.id)
             group.sendMessage(msg)
         }
 

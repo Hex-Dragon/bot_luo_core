@@ -1,7 +1,7 @@
 package bot_luo_core.cli
 
 import bot_luo_core.bot.BotContact
-import bot_luo_core.bot.MultiBotHandler
+import bot_luo_core.bot.BotLuo
 import bot_luo_core.data.Config.REPL_NO
 import bot_luo_core.data.Config.REPL_YES
 import bot_luo_core.data.Group
@@ -12,7 +12,6 @@ import bot_luo_core.util.Text.toLowercase
 import bot_luo_core.util.Time
 import kotlinx.coroutines.TimeoutCancellationException
 import net.mamoe.mirai.contact.Contact
-import net.mamoe.mirai.contact.Contact.Companion.uploadImage
 import net.mamoe.mirai.contact.FileSupported
 import net.mamoe.mirai.contact.MemberPermission
 import net.mamoe.mirai.event.events.EventCancelledException
@@ -145,11 +144,11 @@ class CmdContext(
     }
 
     @Throws(TimeoutCancellationException::class)
-    suspend inline fun nextMessage(timeoutMillis: Long = -1L): MessageChain = MultiBotHandler.catchNextMessage(user.id, group.id, timeoutMillis)
+    suspend inline fun nextMessage(timeoutMillis: Long = -1L): MessageChain = BotLuo.catchNextMessage(user.id, group.id, timeoutMillis)
 
     suspend inline fun nextMessage(timeoutMillis: Long = -1L, timeoutAction: () -> Unit): MessageChain {
         try {
-            return MultiBotHandler.catchNextMessage(user.id, group.id, timeoutMillis)
+            return BotLuo.catchNextMessage(user.id, group.id, timeoutMillis)
         } catch (e: TimeoutCancellationException) {
             timeoutAction()
         }
@@ -157,7 +156,7 @@ class CmdContext(
     }
     suspend inline fun nextYorN(timeoutMillis: Long, noinline timeoutAction: suspend () -> Boolean): Boolean {
         return try {
-            MultiBotHandler.catchNextMessage(user.id, group.id, timeoutMillis) {
+            BotLuo.catchNextMessage(user.id, group.id, timeoutMillis) {
                 it.content.trim().toLowercase() in REPL_YES + REPL_NO
             }.content.trim().toLowercase() in REPL_YES
         } catch (e: TimeoutCancellationException) {

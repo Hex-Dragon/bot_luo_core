@@ -24,7 +24,7 @@ import java.lang.IllegalStateException
 import java.net.HttpURLConnection
 import java.net.URL
 import kotlin.reflect.KType
-//TODO 需要验证
+
 @Command(
     name = "announce",
     display = "公告",

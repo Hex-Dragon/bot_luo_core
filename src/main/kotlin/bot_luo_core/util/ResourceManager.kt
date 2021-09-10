@@ -7,6 +7,7 @@ import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.message.data.Image.Key.queryUrl
 import net.mamoe.mirai.utils.ExternalResource.Companion.toExternalResource
+import net.mamoe.mirai.utils.ExternalResource.Companion.uploadAsImage
 import java.io.*
 import java.net.HttpURLConnection
 import java.net.URL
@@ -67,9 +68,7 @@ object ResourceManager {
                     is Image -> {
                         val file = File(imageDir+it.imageId)
                         if (file.exists()) {
-                            file.inputStream().use { input ->
-                                mcb.add(contact.uploadImage(input.toExternalResource()))
-                            }
+                            file.toExternalResource().use { resource -> mcb.add(contact.uploadImage(resource)) }
                         } else {
                             mcb.add("[图片失效]")
                         }
@@ -78,9 +77,7 @@ object ResourceManager {
                         if (contact is AudioSupported) {
                             val file = File(audioDir + it.filename)
                             if (file.exists()) {
-                                file.inputStream().use { input ->
-                                    mcb.add(contact.uploadAudio(input.toExternalResource()))
-                                }
+                                file.toExternalResource().use { resource -> mcb.add(contact.uploadAudio(resource)) }
                             } else {
                                 mcb.add("[音频失效]")
                             }

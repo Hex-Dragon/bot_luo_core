@@ -17,9 +17,9 @@ import net.mamoe.mirai.utils.BotConfiguration
 import org.apache.logging.log4j.Level
 
 /**
- * # 多机器人管理类
+ * # 罗伯特
  */
-object MultiBotHandler {
+object BotLuo {
     private const val FILE_PATH = "data/bots.json"
 
     /**

@@ -33,6 +33,14 @@ class Group internal constructor(
         get() = PmsGroups.getPmsGroup(getObj("pmsGroup")?: "NONE")
         set(value) = setObj("pmsGroup", value.name)
 
+    var mutedExceptions: ArrayList<String>
+        get() = getObj("mutedExceptions")?: ArrayList()
+        set(value) = setObj("mutedExceptions", value)
+
+    var mutedCheckers: ArrayList<String>
+        get() = getObj("mutedCheckers")?: ArrayList()
+        set(value) = setObj("mutedCheckers", value)
+
     inline fun withServeBot(pms: MemberPermission = MemberPermission.MEMBER, action: (contact: Group)->Unit): Boolean {
         if (virtual) return false
         val contact = if (bot == null) BotLuo.getContactableBots(this).map { it.getGroup(id) }.filter { it != null && it.botPermission >= pms }.randomOrNull()

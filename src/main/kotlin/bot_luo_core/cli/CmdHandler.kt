@@ -21,6 +21,7 @@ import net.mamoe.mirai.message.data.isContentEmpty
 import net.mamoe.mirai.message.data.toPlainText
 import java.lang.reflect.InvocationTargetException
 import kotlin.jvm.Throws
+import kotlin.reflect.full.allSuperclasses
 import kotlin.reflect.full.createInstance
 
 object CmdHandler {
@@ -64,12 +65,17 @@ object CmdHandler {
             withAccessing(context.user, context.group) {
                 execute(context)
             }
-        } catch (e: CliException) {
-            if (!e.output.isContentEmpty()) {
-                context.sendOutputWithLog(At(context.user.id) + e.output)
-            }
         } catch (e: Exception) {
-            context.sendOutputWithLog("发生异常：${e::class.simpleName}".toPlainText())
+            when {
+                e::class.simpleName in context.groupF.mutedExceptions ||
+                        e::class.allSuperclasses.any { it.simpleName in context.groupF.mutedExceptions } -> {}
+                e is CheckerFatal && e.checker.simpleName in context.groupF.mutedCheckers -> {}
+                e is CliException && !e.output.isContentEmpty() -> {
+                    context.sendOutputWithLog(At(context.user.id) + e.output)
+                }
+                else -> context.sendOutputWithLog("发生异常：${e::class.simpleName}".toPlainText())
+            }
+            return
         }
         when (context.uploadOutputFile) {
             0 -> {

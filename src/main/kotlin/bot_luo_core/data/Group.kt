@@ -4,6 +4,7 @@ import bot_luo_core.bot.BotContact
 import bot_luo_core.bot.BotContactType
 import bot_luo_core.bot.BotLuo
 import net.mamoe.mirai.Bot
+import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.contact.Group
 import net.mamoe.mirai.contact.MemberPermission
 
@@ -19,6 +20,12 @@ class Group internal constructor(
     override val contactType = BotContactType.Group
     override val defaultData: CmdData
         get() = CmdData(0,0,0,false)//群组命令默认关闭
+    override var contact: Contact? = null
+        get() {
+            if (field == null)
+                field = BotLuo.getMiraiContact(this)
+            return field
+        }
 
     val virtual: Boolean = id==0L
 

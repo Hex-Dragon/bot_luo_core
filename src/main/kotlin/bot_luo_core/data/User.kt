@@ -20,6 +20,12 @@ class User internal constructor (
 ) : CmdDataObj("data/users/$id.json"), BotContact {
     override val contactType = BotContactType.Single
     override val defaultData: CmdData get() = CmdData(0,0,0,true)//用户命令默认开启
+    override var contact: Contact? = null
+        get() {
+            if (field == null)
+            field = BotLuo.getMiraiContact(this)
+            return field
+        }
 
     val virtual: Boolean = id==0L
 

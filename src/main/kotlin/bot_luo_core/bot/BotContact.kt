@@ -9,7 +9,7 @@ interface BotContact {
     val id: Long
     var bot: Bot?
     val contactType: BotContactType
-    val contact: Contact? get() = BotLuo.getMiraiContact(this)
+    val contact: Contact?
 
     suspend fun sendMessage(msg: Message): MessageReceipt<Contact>? = contact?.sendMessage(msg)
     suspend fun sendMessage(str: String): MessageReceipt<Contact>? = contact?.sendMessage(str)

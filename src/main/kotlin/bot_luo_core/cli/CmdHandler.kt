@@ -36,8 +36,11 @@ object CmdHandler {
         event.intercept()
         val context = CmdContext(
             MessageReader(event.message),
-            Users.readUser(event.sender.id),
-            if (event is GroupAwareMessageEvent) Groups.readGroup(event.group.id) else Groups.readGroup(0)
+            Users.readUser(event.sender.id).apply { contact = event.sender } ,
+            if (event is GroupAwareMessageEvent)
+                Groups.readGroup(event.group.id).apply { contact = event.group }
+            else
+                Groups.virtualGroup
         )
         call(context)
     }

@@ -5,10 +5,12 @@ import bot_luo_core.cli.annotation.Argument
 import bot_luo_core.cli.annotation.Command
 import bot_luo_core.cli.annotation.Method
 import bot_luo_core.cli.checkers.GroupCmdWorkingChecker
+import bot_luo_core.cli.commands.DataCmd.Companion.castTo
 import bot_luo_core.cli.exceptions.SyntaxError
 import bot_luo_core.cli.handlers.GroupArgHandler
 import bot_luo_core.cli.handlers.JsonPathArgHandler
 import bot_luo_core.cli.handlers.UserArgHandler
+import bot_luo_core.data.DataObj
 import bot_luo_core.data.Group
 import bot_luo_core.data.User
 import bot_luo_core.data.withLockedAccessing
@@ -30,57 +32,78 @@ class DataCmd(context: CmdContext) : Cmd(context) {
 
     /*  ========================  get  ========================  */
 
-    @Method(name = "", alias = ["get-group","gg","g"], pmsLevel = CmdPermissionLevel.OP, ignoreCheckers = [GroupCmdWorkingChecker::class])
+    fun get(dataObj: DataObj, objName: String, objId: String = "", path: ArrayList<String> = ArrayList()): CmdReceipt {
+        val table = TableBuilder(4)
+        table.th("${objName}数据 —— $objId")
+        table.p("/"+path.joinToString("/")).br().br()
+        try {
+            readByPath(dataObj.jsonObj, path, table)
+            context.print(table.toString())
+            return SUCCESS
+        } catch (e: NullPointerException) {
+            table.tr("元素不存在")
+        } catch (e: IndexOutOfBoundsException) {
+            table.tr("数组下标超出范围")
+        }
+        context.print(table.toString())
+        return FATAL
+    }
+
+    @Method(name = "", alias = ["get-group","gg","g"], pmsLevel = CmdPermissionLevel.OP, ignoreCheckers = [GroupCmdWorkingChecker::class], title = "获取群组数据")
     fun getGroup (
         @Argument(name = "群组", handler = GroupArgHandler::class)
         group: Group,
         @Argument(name = "路径", required = false, handler = JsonPathArgHandler::class)
         pathIn: ArrayList<String>?
-    ): CmdReceipt {
-        val path = pathIn?: ArrayList()
-        val table = TableBuilder(4)
-        table.th("群组数据 —— ${group.name}(${group.id})").br()
-        table.p("/"+path.joinToString("/")).br()
-        try {
-            readByPath(group.jsonObj, path, table)
-            context.print(table.toString())
-            return SUCCESS
-        } catch (e: NullPointerException) {
-            table.tr("元素不存在")
-        } catch (e: IndexOutOfBoundsException) {
-            table.tr("数组下标超出范围")
-        }
-        context.print(table.toString())
-        return FATAL
-    }
+    ): CmdReceipt = get(group, "群组", "${group.name}(${group.id})", pathIn?: ArrayList())
 
-    @Method(name = "get-user", alias = ["gu","u"], pmsLevel = CmdPermissionLevel.OP, ignoreCheckers = [GroupCmdWorkingChecker::class])
+    @Method(name = "get-user", alias = ["gu","u"], pmsLevel = CmdPermissionLevel.OP, ignoreCheckers = [GroupCmdWorkingChecker::class], title = "获取用户数据")
     fun getUser (
         @Argument(name = "用户", handler = UserArgHandler::class)
         user: User,
         @Argument(name = "路径", required = false, handler = JsonPathArgHandler::class)
         pathIn: ArrayList<String>?
-    ): CmdReceipt {
-        val path = pathIn?: ArrayList()
-        val table = TableBuilder(4)
-        table.th("用户数据 —— ${user.name}(${user.id})").br()
-        table.p("/"+path.joinToString("/")).br()
-        try {
-            readByPath(user.jsonObj, path, table)
-            context.print(table.toString())
-            return SUCCESS
-        } catch (e: NullPointerException) {
-            table.tr("元素不存在")
-        } catch (e: IndexOutOfBoundsException) {
-            table.tr("数组下标超出范围")
-        }
-        context.print(table.toString())
-        return FATAL
-    }
+    ): CmdReceipt = get(user, "用户", "${user.name}(${user.id})", pathIn?: ArrayList())
 
     /*  ========================  set  ========================  */
 
-    @Method(name = "set-group", alias = ["sg"], pmsLevel = CmdPermissionLevel.DEBUG, ignoreCheckers = [GroupCmdWorkingChecker::class], order = 0)
+    suspend fun set(dataObj: DataObj, objName: String, objId: String = "", path: ArrayList<String>, value: String): CmdReceipt {
+        val table = TableBuilder(4)
+        table.th("写入${objName}数据 —— $objId")
+        table.p("/"+path.joinToString("/")).br().br()
+        try { withLockedAccessing(dataObj) {
+            val (old, new) = writeByPath(dataObj.jsonObj, path, value)
+            table.tr(formatValue(old)).tb("->").tb(formatValue(new))
+            context.print(table.toString())
+            return SUCCESS
+        } } catch (e: NullPointerException) {
+            table.tr("拒绝访问")
+        } catch (e: IndexOutOfBoundsException) {
+            table.tr("数组下标超出范围")
+        }
+        context.print(table.toString())
+        return FATAL
+    }
+
+    suspend fun set(dataObj: DataObj, objName: String, objId: String = "", path: ArrayList<String>, value: String, type: String): CmdReceipt {
+        val table = TableBuilder(4)
+        table.th("写入${objName}数据 —— $objId")
+        table.p("/"+path.joinToString("/")).br().br()
+        try { withLockedAccessing(dataObj) {
+            val (old, new) = writeByPathTyped(dataObj.jsonObj, path, value castTo type)
+            table.tr(formatValue(old)).tb("->").tb(formatValue(new))
+            context.print(table.toString())
+            return SUCCESS
+        } } catch (e: NullPointerException) {
+            table.tr("拒绝访问")
+        } catch (e: IndexOutOfBoundsException) {
+            table.tr("数组下标超出范围")
+        }
+        context.print(table.toString())
+        return FATAL
+    }
+
+    @Method(name = "set-group", alias = ["sg"], pmsLevel = CmdPermissionLevel.DEBUG, ignoreCheckers = [GroupCmdWorkingChecker::class], order = 0, title = "修改群组数据")
     suspend fun setGroup (
         @Argument(name = "群组", handler = GroupArgHandler::class)
         group: Group,
@@ -88,25 +111,9 @@ class DataCmd(context: CmdContext) : Cmd(context) {
         path: ArrayList<String>,
         @Argument(name = "值")
         value: String
-    ): CmdReceipt {
-        val table = TableBuilder(4)
-        table.th("写入群组数据 —— ${group.name}(${group.id})").br()
-        table.p("/"+path.joinToString("/")).br()
-        try { withLockedAccessing(group) {
-            val (old, new) = writeByPath(group.jsonObj, path, value)
-            table.tr(formatValue(old)).tb("->").tb(formatValue(new))
-            context.print(table.toString())
-            return SUCCESS
-        } } catch (e: NullPointerException) {
-            table.tr("拒绝访问")
-        } catch (e: IndexOutOfBoundsException) {
-            table.tr("数组下标超出范围")
-        }
-        context.print(table.toString())
-        return FATAL
-    }
+    ): CmdReceipt = set(group, "群组", "${group.name}(${group.id})", path, value)
 
-    @Method(name = "set-user", alias = ["su"], pmsLevel = CmdPermissionLevel.DEBUG, ignoreCheckers = [GroupCmdWorkingChecker::class], order = 0)
+    @Method(name = "set-user", alias = ["su"], pmsLevel = CmdPermissionLevel.DEBUG, ignoreCheckers = [GroupCmdWorkingChecker::class], order = 0, title = "修改用户数据")
     suspend fun setUser (
         @Argument(name = "用户", handler = UserArgHandler::class)
         user: User,
@@ -114,25 +121,9 @@ class DataCmd(context: CmdContext) : Cmd(context) {
         path: ArrayList<String>,
         @Argument(name = "值")
         value: String
-    ): CmdReceipt {
-        val table = TableBuilder(4)
-        table.th("写入用户数据 —— ${user.name}(${user.id})").br()
-        table.p("/"+path.joinToString("/")).br()
-        try { withLockedAccessing(user) {
-            val (old, new) = writeByPath(user.jsonObj, path, value)
-            table.tr(formatValue(old)).tb("->").tb(formatValue(new))
-            context.print(table.toString())
-            return SUCCESS
-        } } catch (e: NullPointerException) {
-            table.tr("拒绝访问")
-        } catch (e: IndexOutOfBoundsException) {
-            table.tr("数组下标超出范围")
-        }
-        context.print(table.toString())
-        return FATAL
-    }
+    ): CmdReceipt = set(user, "用户", "${user.name}(${user.id})", path, value)
 
-    @Method(name = "set-group", alias = ["sg"], pmsLevel = CmdPermissionLevel.DEBUG, ignoreCheckers = [GroupCmdWorkingChecker::class], order = 1)
+    @Method(name = "set-group", alias = ["sg"], pmsLevel = CmdPermissionLevel.DEBUG, ignoreCheckers = [GroupCmdWorkingChecker::class], order = 1, title = "修改群组数据")
     suspend fun setGroup (
         @Argument(name = "群组", handler = GroupArgHandler::class)
         group: Group,
@@ -145,25 +136,9 @@ class DataCmd(context: CmdContext) : Cmd(context) {
         ignore: Any,
         @Argument(name = "类型")
         type: String
-    ): CmdReceipt {
-        val table = TableBuilder(4)
-        table.th("写入群组数据 —— ${group.name}(${group.id})").br()
-        table.p("/"+path.joinToString("/")).br()
-        try { withLockedAccessing(group) {
-            val (old, new) = writeByPathTyped(group.jsonObj, path, value castTo type)
-            table.tr(formatValue(old)).tb("->").tb(formatValue(new))
-            context.print(table.toString())
-            return SUCCESS
-        } } catch (e: NullPointerException) {
-            table.tr("拒绝访问")
-        } catch (e: IndexOutOfBoundsException) {
-            table.tr("数组下标超出范围")
-        }
-        context.print(table.toString())
-        return FATAL
-    }
+    ): CmdReceipt  = set(group, "群组", "${group.name}(${group.id})", path, value, type)
 
-    @Method(name = "set-user", alias = ["su"], pmsLevel = CmdPermissionLevel.DEBUG, ignoreCheckers = [GroupCmdWorkingChecker::class], order = 1)
+    @Method(name = "set-user", alias = ["su"], pmsLevel = CmdPermissionLevel.DEBUG, ignoreCheckers = [GroupCmdWorkingChecker::class], order = 1, title = "修改用户数据")
     suspend fun setUser (
         @Argument(name = "用户", handler = UserArgHandler::class)
         user: User,
@@ -176,23 +151,7 @@ class DataCmd(context: CmdContext) : Cmd(context) {
         ignore: Any,
         @Argument(name = "类型")
         type: String
-    ): CmdReceipt {
-        val table = TableBuilder(4)
-        table.th("写入用户数据 —— ${user.name}(${user.id})").br()
-        table.p("/"+path.joinToString("/")).br()
-        try { withLockedAccessing(user) {
-            val (old, new) = writeByPathTyped(user.jsonObj, path, value castTo type)
-            table.tr(formatValue(old)).tb("->").tb(formatValue(new))
-            context.print(table.toString())
-            return SUCCESS
-        } } catch (e: NullPointerException) {
-            table.tr("拒绝访问")
-        } catch (e: IndexOutOfBoundsException) {
-            table.tr("数组下标超出范围")
-        }
-        context.print(table.toString())
-        return FATAL
-    }
+    ): CmdReceipt = set(user, "用户", "${user.name}(${user.id})", path, value, type)
 
     @Suppress("UNCHECKED_CAST")
     companion object {
@@ -227,8 +186,8 @@ class DataCmd(context: CmdContext) : Cmd(context) {
                 is Boolean -> value.toString()
                 is Number -> value.toString()
                 is String -> "\"$value\""
-                is Map<*, *> -> "<object>"
-                is List<*> -> "<array>"
+                is Map<*, *> -> "<object: ${value.size}>"
+                is List<*> -> "<array: ${value.size}>"
                 null -> "null"
                 else -> "<unk>"
             }

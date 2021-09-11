@@ -18,6 +18,7 @@ object CmdCatalog {
         //注册内建命令
         registerCmd(
             AnnounceCmd::class,
+            DataCmd::class,
             ControlCmd::class,
             DebugCmd::class,
             DumpFileCmd::class,

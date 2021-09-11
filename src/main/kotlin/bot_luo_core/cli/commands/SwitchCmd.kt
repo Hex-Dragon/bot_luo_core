@@ -26,9 +26,9 @@ class SwitchCmd(context: CmdContext) : Cmd(context) {
     @Method(name = "",alias = ["show"],pmsLevel = CmdPermissionLevel.OP,order = 0,ignoreCheckers = [GroupCmdWorkingChecker::class],
     title = "查看", usage = "获取命令是否开启")
     fun show(
-        @Argument(display = "命令", handler = CmdIdArgHandler::class, multiValued = true)
+        @Argument(name = "命令", handler = CmdIdArgHandler::class, multiValued = true)
         ids: ArrayList<String>,
-        @Argument(display = "群组", handler = GroupArgHandler::class, required = false)
+        @Argument(name = "群组", handler = GroupArgHandler::class, required = false)
         groupIn: Group?
     ): CmdReceipt {
         val group = groupIn?: context.group
@@ -44,9 +44,9 @@ class SwitchCmd(context: CmdContext) : Cmd(context) {
 
     @Method(name = "",alias = ["show"],pmsLevel = CmdPermissionLevel.OP,order = 0,ignoreCheckers = [GroupCmdWorkingChecker::class])
     fun show(
-        @Argument(display = "群组", handler = GroupArgHandler::class)
+        @Argument(name = "群组", handler = GroupArgHandler::class)
         groupIn: Group,
-        @Argument(display = "命令", handler = CmdIdArgHandler::class, multiValued = true)
+        @Argument(name = "命令", handler = CmdIdArgHandler::class, multiValued = true)
         ids: ArrayList<String>
     ) = show(ids, groupIn)
 
@@ -54,9 +54,9 @@ class SwitchCmd(context: CmdContext) : Cmd(context) {
 
     @Method(name = "on",pmsLevel = CmdPermissionLevel.OP,order = 0,ignoreCheckers = [GroupCmdWorkingChecker::class])
     fun on(
-        @Argument(display = "命令", handler = CmdIdArgHandler::class, multiValued = true)
+        @Argument(name = "命令", handler = CmdIdArgHandler::class, multiValued = true)
         ids: ArrayList<String>,
-        @Argument(display = "群组", handler = GroupArgHandler::class, required = false)
+        @Argument(name = "群组", handler = GroupArgHandler::class, required = false)
         groupIn: Group?
     ): CmdReceipt {
         val group = groupIn?: context.group
@@ -74,9 +74,9 @@ class SwitchCmd(context: CmdContext) : Cmd(context) {
 
     @Method(name = "on",pmsLevel = CmdPermissionLevel.OP,order = 0,ignoreCheckers = [GroupCmdWorkingChecker::class])
     fun on(
-        @Argument(display = "群组", handler = GroupArgHandler::class)
+        @Argument(name = "群组", handler = GroupArgHandler::class)
         groupIn: Group,
-        @Argument(display = "命令", handler = CmdIdArgHandler::class, multiValued = true)
+        @Argument(name = "命令", handler = CmdIdArgHandler::class, multiValued = true)
         ids: ArrayList<String>
     ) = on (ids, groupIn)
 
@@ -84,9 +84,9 @@ class SwitchCmd(context: CmdContext) : Cmd(context) {
 
     @Method(name = "off",pmsLevel = CmdPermissionLevel.OP,order = 0,ignoreCheckers = [GroupCmdWorkingChecker::class])
     fun off(
-        @Argument(display = "命令", handler = CmdIdArgHandler::class, multiValued = true)
+        @Argument(name = "命令", handler = CmdIdArgHandler::class, multiValued = true)
         ids: ArrayList<String>,
-        @Argument(display = "群组", handler = GroupArgHandler::class, required = false)
+        @Argument(name = "群组", handler = GroupArgHandler::class, required = false)
         groupIn: Group?
     ): CmdReceipt {
         val group = groupIn?: context.group
@@ -104,9 +104,9 @@ class SwitchCmd(context: CmdContext) : Cmd(context) {
 
     @Method(name = "off",pmsLevel = CmdPermissionLevel.OP,order = 0,ignoreCheckers = [GroupCmdWorkingChecker::class])
     fun off(
-        @Argument(display = "群组", handler = GroupArgHandler::class)
+        @Argument(name = "群组", handler = GroupArgHandler::class)
         groupIn: Group,
-        @Argument(display = "命令", handler = CmdIdArgHandler::class, multiValued = true)
+        @Argument(name = "命令", handler = CmdIdArgHandler::class, multiValued = true)
         ids: ArrayList<String>
     ) = off (ids, groupIn)
 }

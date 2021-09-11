@@ -26,7 +26,7 @@ class PermissionCmd(context: CmdContext) : Cmd(context) {
 
     @Method(name = "",alias = ["get-group","gg","g"],pmsLevel = CmdPermissionLevel.OP,title = "查看群组")
     fun getG(
-        @Argument(display = "群组", required = false, handler = GroupArgHandler::class)
+        @Argument(name = "群组", required = false, handler = GroupArgHandler::class)
         groupIn: Group?
     ): CmdReceipt {
         val group = groupIn?: context.group
@@ -39,7 +39,7 @@ class PermissionCmd(context: CmdContext) : Cmd(context) {
 
     @Method(name = "get-user",alias = ["gu","u"],pmsLevel = CmdPermissionLevel.OP,title = "查看用户")
     fun getU(
-        @Argument(display = "用户", required = false, handler = UserArgHandler::class)
+        @Argument(name = "用户", required = false, handler = UserArgHandler::class)
         userIn: User?
     ): CmdReceipt {
         val user = userIn?: context.user
@@ -54,9 +54,9 @@ class PermissionCmd(context: CmdContext) : Cmd(context) {
 
     @Method(name = "set-group",alias = ["sg"],pmsLevel = CmdPermissionLevel.OP,title = "设置群组")
     suspend fun setG(
-        @Argument(display = "权限组", handler = PmsGroupArgHandler::class)
+        @Argument(name = "权限组", handler = PmsGroupArgHandler::class)
         pms: PmsGroup,
-        @Argument(display = "群组", required = false, multiValued = true, handler = MultiGroupArgHandler::class)
+        @Argument(name = "群组", required = false, multiValued = true, handler = MultiGroupArgHandler::class)
         groupsIn: ArrayList<Group>?
     ): CmdReceipt {
         val groups = groupsIn?: arrayListOf(context.group)
@@ -72,9 +72,9 @@ class PermissionCmd(context: CmdContext) : Cmd(context) {
 
     @Method(name = "set-user",alias = ["su"],pmsLevel = CmdPermissionLevel.OP,title = "设置用户")
     suspend fun setU(
-        @Argument(display = "权限组", handler = PmsGroupArgHandler::class)
+        @Argument(name = "权限组", handler = PmsGroupArgHandler::class)
         pms: PmsGroup,
-        @Argument(display = "用户", required = false, multiValued = true, handler = MultiUserArgHandler::class)
+        @Argument(name = "用户", required = false, multiValued = true, handler = MultiUserArgHandler::class)
         usersIn: ArrayList<User>?
     ): CmdReceipt {
         val users = usersIn?: arrayListOf(context.user)

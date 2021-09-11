@@ -2,6 +2,7 @@ package bot_luo_core.cli
 
 import bot_luo_core.cli.annotation.Argument
 import bot_luo_core.cli.exceptions.*
+import bot_luo_core.cli.handlers.LiteralArgHandler
 import bot_luo_core.data.Config.CMD_PREFIX
 import net.mamoe.mirai.message.data.content
 import net.mamoe.mirai.message.data.isContentEmpty
@@ -50,14 +51,15 @@ class CmdParser(private val reader: MessageReader) {
     fun parse(param: Argument, targetType: KType, context: CmdContext): Any? {
         reader.skipWhitespace()
         val pos = reader.getCursor()
-
-        val ins = param.handler.createInstance()
         if (reader.canRead()) {
-            if (param.multiValued) {
+            val ins = param.handler.createInstance()
+            if (param.literal) {
+                return LiteralArgHandler().handle(reader, pos, param.name, targetType, context)
+            } else if (param.multiValued) {
                 val res = ArrayList<Any?>()
                 if (reader.isMultipleStringStart(reader.peek())) {
                     for (m in reader.readMultipleMessage()) {
-                        val value = ins.handle(MessageReader(m), pos, param.display, targetType.arguments[0].type, context)
+                        val value = ins.handle(MessageReader(m), pos, param.name, targetType.arguments[0].type, context)
                         if (ins.multiValued) {
                             res.addAll(value as Collection<Any?>)
                         } else {
@@ -65,7 +67,7 @@ class CmdParser(private val reader: MessageReader) {
                         }
                     }
                 } else {
-                    val value = ins.handle(reader, pos, param.display, targetType.arguments[0].type, context)
+                    val value = ins.handle(reader, pos, param.name, targetType.arguments[0].type, context)
                     if (ins.multiValued) {
                         res.addAll(value as Collection<Any?>)
                     } else {
@@ -74,7 +76,7 @@ class CmdParser(private val reader: MessageReader) {
                 }
                 return res
             } else {
-                return ins.handle(reader, pos, param.display, targetType, context)
+                return ins.handle(reader, pos, param.name, targetType, context)
             }
         } else if (!param.required) {
             return null

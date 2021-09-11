@@ -38,9 +38,9 @@ class TagCmd(context: CmdContext) : Cmd(context) {
 
     @Method(name = "group-add", alias = ["ga"], pmsLevel = CmdPermissionLevel.OP, title = "添加群组标签", order = 0)
     suspend fun groupAdd(
-        @Argument(display = "被操作标签", handler = TagArgHandler::class)
+        @Argument(name = "被操作标签", handler = TagArgHandler::class)
         tag: String,
-        @Argument(display = "待加入标签", handler = TagArgHandler::class, multiValued = true)
+        @Argument(name = "待加入标签", handler = TagArgHandler::class, multiValued = true)
         tagIn: ArrayList<String>
     ): CmdReceipt {
         if (tag in BUILTIN_GROUP_TAGS) {
@@ -68,9 +68,9 @@ class TagCmd(context: CmdContext) : Cmd(context) {
 
     @Method(name = "group-add", alias = ["ga"], pmsLevel = CmdPermissionLevel.OP, title = "添加群组标签", order = 1)
     suspend fun groupAdd1(
-        @Argument(display = "被操作标签", handler = TagArgHandler::class)
+        @Argument(name = "被操作标签", handler = TagArgHandler::class)
         tag: String,
-        @Argument(display = "待加入群组", handler = GroupArgHandler::class, multiValued = true)
+        @Argument(name = "待加入群组", handler = GroupArgHandler::class, multiValued = true)
         groupIn: ArrayList<Group>
     ): CmdReceipt {
         if (tag in BUILTIN_GROUP_TAGS) {
@@ -98,9 +98,9 @@ class TagCmd(context: CmdContext) : Cmd(context) {
 
     @Method(name = "user-add", alias = ["ua"], pmsLevel = CmdPermissionLevel.OP, title = "添加用户标签", order = 0)
     suspend fun userAdd(
-        @Argument(display = "被操作标签", handler = TagArgHandler::class)
+        @Argument(name = "被操作标签", handler = TagArgHandler::class)
         tag: String,
-        @Argument(display = "待加入标签", handler = TagArgHandler::class, multiValued = true)
+        @Argument(name = "待加入标签", handler = TagArgHandler::class, multiValued = true)
         tagIn: ArrayList<String>
     ): CmdReceipt {
         if (tag in BUILTIN_USER_TAGS) {
@@ -128,9 +128,9 @@ class TagCmd(context: CmdContext) : Cmd(context) {
 
     @Method(name = "user-add", alias = ["ua"], pmsLevel = CmdPermissionLevel.OP, title = "添加用户标签", order = 1)
     suspend fun userAdd1(
-        @Argument(display = "被操作标签", handler = TagArgHandler::class)
+        @Argument(name = "被操作标签", handler = TagArgHandler::class)
         tag: String,
-        @Argument(display = "待加入用户", handler = UserArgHandler::class, multiValued = true)
+        @Argument(name = "待加入用户", handler = UserArgHandler::class, multiValued = true)
         userIn: ArrayList<User>
     ): CmdReceipt {
         if (tag in BUILTIN_GROUP_TAGS) {
@@ -160,7 +160,7 @@ class TagCmd(context: CmdContext) : Cmd(context) {
 
     @Method(name = "group-list", alias = ["gl"], pmsLevel = CmdPermissionLevel.OP, title = "列出群组标签")
     fun groupList(
-        @Argument(display = "标签", handler = TagArgHandler::class, required = false)
+        @Argument(name = "标签", handler = TagArgHandler::class, required = false)
         tag: String?
     ): CmdReceipt {
         val table = TableBuilder(4)
@@ -186,7 +186,7 @@ class TagCmd(context: CmdContext) : Cmd(context) {
 
     @Method(name = "user-list", alias = ["ul"], pmsLevel = CmdPermissionLevel.OP, title = "列出用户标签")
     fun userList(
-        @Argument(display = "标签", handler = TagArgHandler::class, required = false)
+        @Argument(name = "标签", handler = TagArgHandler::class, required = false)
         tag: String?
     ): CmdReceipt {
         val table = TableBuilder(4)
@@ -214,7 +214,7 @@ class TagCmd(context: CmdContext) : Cmd(context) {
 
     @Method(name = "group-tree", alias = ["gt"], pmsLevel = CmdPermissionLevel.OP, title = "展开群组标签")
     fun groupTree(
-        @Argument(display = "标签", handler = TagArgHandler::class)
+        @Argument(name = "标签", handler = TagArgHandler::class)
         tag: String
     ): CmdReceipt {
         val table = TableBuilder(1)
@@ -226,7 +226,7 @@ class TagCmd(context: CmdContext) : Cmd(context) {
 
     @Method(name = "user-tree", alias = ["ut"], pmsLevel = CmdPermissionLevel.OP, title = "展开用户标签")
     fun userTree(
-        @Argument(display = "标签", handler = TagArgHandler::class)
+        @Argument(name = "标签", handler = TagArgHandler::class)
         tag: String
     ): CmdReceipt {
         val table = TableBuilder(1)
@@ -240,7 +240,7 @@ class TagCmd(context: CmdContext) : Cmd(context) {
 
     @Method(name = "group-remove", alias = ["gr"], pmsLevel = CmdPermissionLevel.OP, title = "删除群组标签", order = 0)
     suspend fun groupRem(
-        @Argument(display = "待删除标签", handler = TagArgHandler::class)
+        @Argument(name = "待删除标签", handler = TagArgHandler::class)
         tag: String
     ): CmdReceipt {
         if (tag in BUILTIN_GROUP_TAGS) {
@@ -267,7 +267,7 @@ class TagCmd(context: CmdContext) : Cmd(context) {
 
     @Method(name = "user-remove", alias = ["ur"], pmsLevel = CmdPermissionLevel.OP, title = "删除用户标签", order = 0)
     suspend fun userRem(
-        @Argument(display = "待删除标签", handler = TagArgHandler::class)
+        @Argument(name = "待删除标签", handler = TagArgHandler::class)
         tag: String
     ): CmdReceipt {
         if (tag in BUILTIN_USER_TAGS) {
@@ -294,9 +294,9 @@ class TagCmd(context: CmdContext) : Cmd(context) {
 
     @Method(name = "group-remove", alias = ["gr"], pmsLevel = CmdPermissionLevel.OP, title = "移除群组标签", order = 1)
     suspend fun groupRem(
-        @Argument(display = "被操作标签", handler = TagArgHandler::class)
+        @Argument(name = "被操作标签", handler = TagArgHandler::class)
         tag: String,
-        @Argument(display = "待移除群组或标签", multiValued = true)
+        @Argument(name = "待移除群组或标签", multiValued = true)
         itemsIn: ArrayList<String>
     ): CmdReceipt {
         if (tag in BUILTIN_GROUP_TAGS) {
@@ -319,9 +319,9 @@ class TagCmd(context: CmdContext) : Cmd(context) {
 
     @Method(name = "group-remove", alias = ["gr"], pmsLevel = CmdPermissionLevel.OP, title = "移除群组标签", order = 1)
     suspend fun userRem(
-        @Argument(display = "被操作标签", handler = TagArgHandler::class)
+        @Argument(name = "被操作标签", handler = TagArgHandler::class)
         tag: String,
-        @Argument(display = "待移除用户或标签", multiValued = true)
+        @Argument(name = "待移除用户或标签", multiValued = true)
         itemsIn: ArrayList<String>
     ): CmdReceipt {
         if (tag in BUILTIN_GROUP_TAGS) {

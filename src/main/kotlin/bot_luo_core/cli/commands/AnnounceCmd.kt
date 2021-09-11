@@ -12,8 +12,6 @@ import bot_luo_core.data.Group
 import bot_luo_core.util.TableBuilder
 import kotlinx.coroutines.delay
 import net.mamoe.mirai.contact.MemberPermission
-import net.mamoe.mirai.contact.PermissionDeniedException
-import net.mamoe.mirai.contact.announcement.Announcement
 import net.mamoe.mirai.contact.announcement.Announcement.Companion.publishAnnouncement
 import net.mamoe.mirai.contact.announcement.AnnouncementParametersBuilder
 import net.mamoe.mirai.message.data.Image
@@ -47,13 +45,13 @@ class AnnounceCmd(context: CmdContext) : Cmd(context) {
 
     @Method(name = "", alias = [], pmsLevel = CmdPermissionLevel.OP, order = 0)
     suspend fun announce (
-        @Argument(display = "群组", multiValued = true, handler = MultiGroupArgHandler::class)
+        @Argument(name = "群组", multiValued = true, handler = MultiGroupArgHandler::class)
         groups: ArrayList<Group>,
-        @Argument(display = "公告选项", handler = AnnouncementParametersArgHandler::class)
+        @Argument(name = "公告选项", handler = AnnouncementParametersArgHandler::class)
         builder: AnnouncementParametersBuilder,
-        @Argument(display = "头图", handler = ImageArgHandler::class)
+        @Argument(name = "头图", handler = ImageArgHandler::class)
         image: Image?,
-        @Argument(display = "文本", handler = GreedyStringArgHandler::class)
+        @Argument(name = "文本", handler = GreedyStringArgHandler::class)
         content: String
     ): CmdReceipt {
 
@@ -108,29 +106,29 @@ class AnnounceCmd(context: CmdContext) : Cmd(context) {
 
     @Method(name = "", alias = [], pmsLevel = CmdPermissionLevel.OP, order = 1)
     suspend fun announce (
-        @Argument(display = "群组", multiValued = true, handler = MultiGroupArgHandler::class)
+        @Argument(name = "群组", multiValued = true, handler = MultiGroupArgHandler::class)
         groups: ArrayList<Group>,
-        @Argument(display = "公告选项", handler = AnnouncementParametersArgHandler::class)
+        @Argument(name = "公告选项", handler = AnnouncementParametersArgHandler::class)
         builder: AnnouncementParametersBuilder,
-        @Argument(display = "文本", handler = GreedyStringArgHandler::class)
+        @Argument(name = "文本", handler = GreedyStringArgHandler::class)
         content: String
     ): CmdReceipt = announce(groups, builder, null, content)
 
     @Method(name = "", alias = [], pmsLevel = CmdPermissionLevel.OP, order = 2)
     suspend fun announce (
-        @Argument(display = "群组", multiValued = true, handler = MultiGroupArgHandler::class)
+        @Argument(name = "群组", multiValued = true, handler = MultiGroupArgHandler::class)
         groups: ArrayList<Group>,
-        @Argument(display = "头图", handler = ImageArgHandler::class)
+        @Argument(name = "头图", handler = ImageArgHandler::class)
         image: Image,
-        @Argument(display = "文本", handler = GreedyStringArgHandler::class)
+        @Argument(name = "文本", handler = GreedyStringArgHandler::class)
         content: String
     ): CmdReceipt = announce(groups, AnnouncementParametersBuilder(), image, content)
 
     @Method(name = "", alias = [], pmsLevel = CmdPermissionLevel.OP, order = 3)
     suspend fun announce (
-        @Argument(display = "群组", multiValued = true, handler = MultiGroupArgHandler::class)
+        @Argument(name = "群组", multiValued = true, handler = MultiGroupArgHandler::class)
         groups: ArrayList<Group>,
-        @Argument(display = "文本", handler = GreedyStringArgHandler::class)
+        @Argument(name = "文本", handler = GreedyStringArgHandler::class)
         content: String
     ): CmdReceipt = announce(groups, AnnouncementParametersBuilder(), null, content)
 }

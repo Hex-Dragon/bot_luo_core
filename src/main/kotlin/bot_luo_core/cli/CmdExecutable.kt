@@ -95,7 +95,7 @@ class CmdExecutable(private val cmd: KClass<out Cmd>, private val meth: KFunctio
 }
 
 fun formatParameter(arg: Argument): String {
-    var p = arg.display
+    var p = arg.name
     if (arg.multiValued) p += "..."
     if (!arg.literal) p = "<$p>"
     if (!arg.required) p = "[$p]"

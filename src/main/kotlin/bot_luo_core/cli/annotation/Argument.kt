@@ -8,7 +8,7 @@ annotation class Argument (
     /**
      * 显示名称，用于命令参数格式化显示
      */
-    val display: String,
+    val name: String,
 
     /**
      * 是否为多值参数
@@ -21,6 +21,11 @@ annotation class Argument (
 
     /**
      * 是否为字面参数
+     *
+     * 若为字面量，则其[handler]可以不用定义，将自动使用[bot_luo_core.cli.handlers.LiteralArgHandler]；
+     * [multiValued]无效
+     *
+     * 参数定义时类型可设为[Any]
      */
     val literal: Boolean = false,
 

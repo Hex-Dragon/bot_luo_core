@@ -25,7 +25,7 @@ class SayCmd(context: CmdContext) : Cmd(context) {
 
     @Method(name = "", alias = [], pmsLevel = CmdPermissionLevel.OP )
     suspend fun say (
-        @Argument(display = "消息", handler = GreedyMessageArgHandler::class)
+        @Argument(name = "消息", handler = GreedyMessageArgHandler::class)
         msg: MessageChain
     ): CmdReceipt { with(context) {
 

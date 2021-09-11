@@ -6,7 +6,6 @@ import bot_luo_core.cli.annotation.Command
 import bot_luo_core.cli.annotation.Method
 import bot_luo_core.cli.checkers.GroupCmdWorkingChecker
 import bot_luo_core.cli.checkers.GroupPermissionChecker
-import bot_luo_core.cli.checkers.PermissionChecker
 import bot_luo_core.cli.checkers.UserCmdWorkingChecker
 import bot_luo_core.cli.exceptions.CheckerFatal
 import bot_luo_core.cli.handlers.CmdExArgHandler
@@ -49,7 +48,7 @@ class HelpCmd(context: CmdContext) : Cmd(context) {
 
     @Method(name = "cmd", alias = ["c"], pmsLevel = CmdPermissionLevel.NORMAL)
     suspend fun helpCmd(
-        @Argument(display = "命令", required = true, handler = CmdExArgHandler::class)
+        @Argument(name = "命令", required = true, handler = CmdExArgHandler::class)
         cmds: List<CmdExecutable>
     ): CmdReceipt {
 

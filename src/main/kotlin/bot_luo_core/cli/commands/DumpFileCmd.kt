@@ -23,7 +23,7 @@ class DumpFileCmd(context: CmdContext) : Cmd(context) {
     @Throws(CliException::class)
     @Method(name = "", alias = [], pmsLevel = CmdPermissionLevel.OP)
     fun dump (
-        @Argument(display = "命令", handler = GreedyMessageArgHandler::class)
+        @Argument(name = "命令", handler = GreedyMessageArgHandler::class)
         cmd: MessageChain
     ): CmdReceipt { with(context) {
         val sub = context.fork(reader = MessageReader(cmd))

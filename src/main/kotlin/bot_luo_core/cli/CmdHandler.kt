@@ -69,7 +69,7 @@ object CmdHandler {
                 context.sendOutputWithLog(At(context.user.id) + e.output)
             }
         } catch (e: Exception) {
-            context.sendOutputWithLog("发生异常：${e::class.simpleName}\n${e.message}".toPlainText())
+            context.sendOutputWithLog("发生异常：${e::class.simpleName}".toPlainText())
         }
         when (context.uploadOutputFile) {
             0 -> {
@@ -152,9 +152,9 @@ object CmdHandler {
                     context.uploadOutputFile = maxOf(context.uploadOutputFile, res.uploadOutputFile)
                 } catch (e: Exception) {
                     when(e) {
-                        is CliException -> throw e
                         is InvocationTargetException -> {
                             when(e.targetException) {
+                                is CliException -> throw e  //命令内部抛出的CliException，跳过命令匹配
                                 //不重要的异常
                                 is TimeoutCancellationException,
                                     -> throw CmdExecutingWarn(e.targetException)
@@ -169,6 +169,8 @@ object CmdHandler {
                     Logger.log(cmd, context, "命令退出")
                 }
                 return
+            } catch (e: InvocationTargetException) {    //此时目标异常一定是Cli异常
+                throw e.targetException
             } catch (e: CmdParseFatal) {
                 parseFatal.add(e)
             } catch (e: CheckerFatal) {

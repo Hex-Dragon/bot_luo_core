@@ -5,15 +5,11 @@ import bot_luo_core.cli.annotation.Argument
 import bot_luo_core.cli.annotation.Command
 import bot_luo_core.cli.annotation.Method
 import bot_luo_core.cli.checkers.GroupCmdWorkingChecker
-import bot_luo_core.cli.commands.DataCmd.Companion.castTo
 import bot_luo_core.cli.exceptions.SyntaxError
 import bot_luo_core.cli.handlers.GroupArgHandler
 import bot_luo_core.cli.handlers.JsonPathArgHandler
 import bot_luo_core.cli.handlers.UserArgHandler
-import bot_luo_core.data.DataObj
-import bot_luo_core.data.Group
-import bot_luo_core.data.User
-import bot_luo_core.data.withLockedAccessing
+import bot_luo_core.data.*
 import bot_luo_core.util.TableBuilder
 import com.alibaba.fastjson.JSONArray
 import com.alibaba.fastjson.JSONObject
@@ -32,12 +28,29 @@ class DataCmd(context: CmdContext) : Cmd(context) {
 
     /*  ========================  get  ========================  */
 
-    fun get(dataObj: DataObj, objName: String, objId: String = "", path: ArrayList<String> = ArrayList()): CmdReceipt {
+    fun get(dataObject: DataObject, objName: String, objId: String = "", path: ArrayList<String> = ArrayList()): CmdReceipt {
         val table = TableBuilder(4)
         table.th("${objName}数据 —— $objId")
         table.p("/"+path.joinToString("/")).br().br()
         try {
-            readByPath(dataObj.jsonObj, path, table)
+            readByPath(dataObject.jsonObj, path, table)
+            context.print(table.toString())
+            return SUCCESS
+        } catch (e: NullPointerException) {
+            table.tr("元素不存在")
+        } catch (e: IndexOutOfBoundsException) {
+            table.tr("数组下标超出范围")
+        }
+        context.print(table.toString())
+        return FATAL
+    }
+
+    fun get(dataArray: DataArray, arrayName: String, arrayId: String = "", path: ArrayList<String> = ArrayList()): CmdReceipt {
+        val table = TableBuilder(4)
+        table.th("${arrayName}数据 —— $arrayId")
+        table.p("/"+path.joinToString("/")).br().br()
+        try {
+            readByPath(dataArray.jsonArray, path, table)
             context.print(table.toString())
             return SUCCESS
         } catch (e: NullPointerException) {
@@ -67,12 +80,12 @@ class DataCmd(context: CmdContext) : Cmd(context) {
 
     /*  ========================  set  ========================  */
 
-    suspend fun set(dataObj: DataObj, objName: String, objId: String = "", path: ArrayList<String>, value: String): CmdReceipt {
+    suspend fun set(dataObject: DataObject, objName: String, objId: String = "", path: ArrayList<String>, value: String): CmdReceipt {
         val table = TableBuilder(4)
         table.th("写入${objName}数据 —— $objId")
         table.p("/"+path.joinToString("/")).br().br()
-        try { withLockedAccessing(dataObj) {
-            val (old, new) = writeByPath(dataObj.jsonObj, path, value)
+        try { withLockedAccessing(dataObject) {
+            val (old, new) = writeByPath(dataObject.jsonObj, path, value)
             table.tr(formatValue(old)).tb("->").tb(formatValue(new))
             context.print(table.toString())
             return SUCCESS
@@ -85,12 +98,48 @@ class DataCmd(context: CmdContext) : Cmd(context) {
         return FATAL
     }
 
-    suspend fun set(dataObj: DataObj, objName: String, objId: String = "", path: ArrayList<String>, value: String, type: String): CmdReceipt {
+    suspend fun set(dataArray: DataArray, arrayName: String, arrayId: String = "", path: ArrayList<String>, value: String): CmdReceipt {
+        val table = TableBuilder(4)
+        table.th("写入${arrayName}数据 —— $arrayId")
+        table.p("/"+path.joinToString("/")).br().br()
+        try { withLockedAccessing(dataArray) {
+            val (old, new) = writeByPath(dataArray.jsonArray, path, value)
+            table.tr(formatValue(old)).tb("->").tb(formatValue(new))
+            context.print(table.toString())
+            return SUCCESS
+        } } catch (e: NullPointerException) {
+            table.tr("拒绝访问")
+        } catch (e: IndexOutOfBoundsException) {
+            table.tr("数组下标超出范围")
+        }
+        context.print(table.toString())
+        return FATAL
+    }
+
+    suspend fun set(dataObject: DataObject, objName: String, objId: String = "", path: ArrayList<String>, value: String, type: String): CmdReceipt {
         val table = TableBuilder(4)
         table.th("写入${objName}数据 —— $objId")
         table.p("/"+path.joinToString("/")).br().br()
-        try { withLockedAccessing(dataObj) {
-            val (old, new) = writeByPathTyped(dataObj.jsonObj, path, value castTo type)
+        try { withLockedAccessing(dataObject) {
+            val (old, new) = writeByPathTyped(dataObject.jsonObj, path, value castTo type)
+            table.tr(formatValue(old)).tb("->").tb(formatValue(new))
+            context.print(table.toString())
+            return SUCCESS
+        } } catch (e: NullPointerException) {
+            table.tr("拒绝访问")
+        } catch (e: IndexOutOfBoundsException) {
+            table.tr("数组下标超出范围")
+        }
+        context.print(table.toString())
+        return FATAL
+    }
+
+    suspend fun set(dataArray: DataArray, arrayName: String, arrayId: String = "", path: ArrayList<String>, value: String, type: String): CmdReceipt {
+        val table = TableBuilder(4)
+        table.th("写入${arrayName}数据 —— $arrayId")
+        table.p("/"+path.joinToString("/")).br().br()
+        try { withLockedAccessing(dataArray) {
+            val (old, new) = writeByPathTyped(dataArray.jsonArray, path, value castTo type)
             table.tr(formatValue(old)).tb("->").tb(formatValue(new))
             context.print(table.toString())
             return SUCCESS
@@ -189,7 +238,7 @@ class DataCmd(context: CmdContext) : Cmd(context) {
                 is Map<*, *> -> "<object: ${value.size}>"
                 is List<*> -> "<array: ${value.size}>"
                 null -> "null"
-                else -> "<unk>"
+                else -> "<${value::class.simpleName}>"
             }
         }
 
@@ -197,13 +246,10 @@ class DataCmd(context: CmdContext) : Cmd(context) {
         private fun readByPath(obj: Any?, path: ArrayList<String> = ArrayList(), table: TableBuilder) {
             if (path.isEmpty()) {
                 when (obj) {
-                    is Boolean -> table.tr(obj)
-                    is Number -> table.tr(obj)
-                    is String -> table.tr("\"$obj\"")
                     is JSONObject -> objectGet(obj, table)
                     is JSONArray -> arrayGet(obj, table)
                     null -> throw NullPointerException()
-                    else -> table.tr("<unk>")
+                    else -> table.tr(formatValue(obj))
                 }
             } else {
                 when (obj) {

@@ -1,7 +1,7 @@
 package bot_luo_core.bot
 
 import bot_luo_core.cli.CmdHandler
-import bot_luo_core.data.DataObj
+import bot_luo_core.data.Data
 import bot_luo_core.util.JsonWorker
 import bot_luo_core.util.Logger
 import bot_luo_core.util.Time
@@ -273,8 +273,8 @@ object BotLuo {
 
     fun saveAll() {
         runBlocking {
-            DataObj.savingJobs.values.forEach { it.start(); it.join() }
-            DataObj.savingJobs.keys.forEach { it.cancelAndJoin() }
+            Data.savingJobs.values.forEach { it.start(); it.join() }
+            Data.savingJobs.keys.forEach { it.cancelAndJoin() }
         }
     }
 

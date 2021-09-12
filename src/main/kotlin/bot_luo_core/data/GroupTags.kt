@@ -6,7 +6,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
-object GroupTags: DataObj("data/group_tags.json", 10000L, false) {
+object GroupTags: DataObject("data/group_tags.json", 10000L, false) {
     override fun unload() {}
 
     val BUILTIN_GROUP_TAGS = listOf("#this", "#none")

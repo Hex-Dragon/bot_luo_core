@@ -10,7 +10,7 @@ class BotRunningChecker: Checker {
     override val name = "机器人运行检定器"
 
     override fun check(cmd: CmdExecutable, context: CmdContext) {
-        if (!BOT_RUNNING) fatal("机器人已关闭".toPlainText())
+        if (!BOT_RUNNING) throw CheckerFatal("机器人已关闭")
     }
 
 }

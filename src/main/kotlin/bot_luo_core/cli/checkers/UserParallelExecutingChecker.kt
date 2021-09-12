@@ -9,7 +9,10 @@ class UserParallelExecutingChecker: Checker {
     override val name = "用户命令并发检定器"
 
     override fun check(cmd: CmdExecutable, context: CmdContext) {
-        if (!context.user.isCmdFree(cmd)) fatal("请等待命令执行完毕".toPlainText())
+        if (!context.user.isCmdFree(cmd)) throw CheckerFatal(
+            "请等待命令执行完成".toPlainText(),
+            "用户有相同命令正在执行"
+        )
     }
 
 }

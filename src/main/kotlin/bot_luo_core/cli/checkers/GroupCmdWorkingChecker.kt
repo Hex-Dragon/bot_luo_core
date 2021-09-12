@@ -11,6 +11,6 @@ class GroupCmdWorkingChecker: Checker {
 
     override fun check(cmd: CmdExecutable, context: CmdContext) {
         val data = context.group.readCmdData(cmd)
-        if (!data.working) fatal("此命令未在群组 ${context.group.name}(${context.group.id}) 启用".toPlainText())
+        if (!data.working) throw CheckerFatal("此命令未在群组 ${context.group.name}(${context.group.id}) 启用")
     }
 }

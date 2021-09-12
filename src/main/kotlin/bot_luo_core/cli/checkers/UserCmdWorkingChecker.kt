@@ -11,6 +11,6 @@ class UserCmdWorkingChecker: Checker {
 
     override fun check(cmd: CmdExecutable, context: CmdContext) {
         val data = context.user.readCmdData(cmd)
-        if (!data.working) fatal("此命令已对用户 ${context.user.name}(${context.user.id}) 关闭".toPlainText())
+        if (!data.working) throw CheckerFatal("此命令已对用户 ${context.user.name}(${context.user.id}) 关闭")
     }
 }

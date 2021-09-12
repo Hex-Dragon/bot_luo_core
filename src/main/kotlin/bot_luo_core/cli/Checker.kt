@@ -15,10 +15,8 @@ interface Checker {
     @Throws(CheckerFatal::class)
     fun check(cmd: CmdExecutable, context: CmdContext)
 
-    @Throws(CheckerFatal::class)
-    fun fatal(msg: Message) {
-        throw CheckerFatal(msg, "$name 检定失败：${msg.content}", this::class)
-    }
+    fun CheckerFatal(output: Message, message: String) = CheckerFatal(output, "$name 检定失败：${message}", this::class)
+    fun CheckerFatal(message: String) = CheckerFatal(message.toPlainText(), "$name 检定失败：${message}")
 
     companion object {
 
@@ -33,9 +31,11 @@ interface Checker {
         val CHECKERS = arrayListOf(
             BotRunningChecker::class,
             GroupCmdWorkingChecker::class,
+            PermissionChecker::class,
+            UserCDChecker::class,
             UserCmdWorkingChecker::class,
-            UserParallelExecutingChecker::class,
-            PermissionChecker::class
+            UserDayLimitChecker::class,
+            UserParallelExecutingChecker::class
         )
 
         fun KClass<out Checker>.order() = CHECKERS.indexOf(this)

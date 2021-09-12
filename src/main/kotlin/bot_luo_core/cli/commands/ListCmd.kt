@@ -3,10 +3,7 @@ package bot_luo_core.cli.commands
 import bot_luo_core.cli.*
 import bot_luo_core.cli.annotation.Command
 import bot_luo_core.cli.annotation.Method
-import bot_luo_core.cli.checkers.GroupCmdWorkingChecker
-import bot_luo_core.cli.checkers.GroupPermissionChecker
-import bot_luo_core.cli.checkers.PermissionChecker
-import bot_luo_core.cli.checkers.UserCmdWorkingChecker
+import bot_luo_core.cli.checkers.addon.GroupPermissionChecker
 import bot_luo_core.cli.exceptions.CheckerFatal
 import bot_luo_core.util.TableBuilder
 import kotlin.reflect.full.createInstance

@@ -11,6 +11,8 @@ import bot_luo_core.data.withAccessing
 import bot_luo_core.data.withLockedAccessing
 import bot_luo_core.util.Logger
 import bot_luo_core.util.Text.firstNotWhitespace
+import bot_luo_core.util.Time.isSameDayTo
+import bot_luo_core.util.Time.notSameDayTo
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.runBlocking
 import net.mamoe.mirai.event.events.GroupAwareMessageEvent
@@ -140,10 +142,12 @@ object CmdHandler {
                         if (res.addCount) {
                             val ud = context.user.readCmdData(cmd)
                             ud.totalCount++
+                            if (time notSameDayTo ud.lastTime) ud.dayCount = 0
                             ud.dayCount++
                             context.user.writeCmdData(cmd, ud)
                             val gd = context.group.readCmdData(cmd)
                             gd.totalCount++
+                            if (time notSameDayTo gd.lastTime) gd.dayCount = 0
                             gd.dayCount++
                             context.group.writeCmdData(cmd, gd)
                         }

@@ -28,9 +28,9 @@ object Time {
      */
     fun hour(time: Long) = calendar.let { it.timeInMillis= time; it.get(Calendar.HOUR_OF_DAY) }
     fun hour() = hour(time())
-    fun minute(time: Long) = calendar.let { it.timeInMillis= time(); it.get(Calendar.MINUTE) }
+    fun minute(time: Long) = calendar.let { it.timeInMillis= time; it.get(Calendar.MINUTE) }
     fun minute() = minute(time())
-    fun second(time: Long) = calendar.let { it.timeInMillis= time(); it.get(Calendar.SECOND) }
+    fun second(time: Long) = calendar.let { it.timeInMillis= time; it.get(Calendar.SECOND) }
     fun second() = second(time())
 
     /**
@@ -45,6 +45,9 @@ object Time {
         cRef.timeZone = TimeZone.getTimeZone("GMT+08:00")
         return (c.get(Calendar.YEAR) == cRef.get(Calendar.YEAR) && c.get(Calendar.MONTH) == cRef.get(Calendar.MONTH) && c.get(Calendar.DAY_OF_MONTH) == cRef.get(Calendar.DAY_OF_MONTH))
     }
+
+    infix fun Long.isSameDayTo(that: Long): Boolean = isSameDay(this, that)
+    infix fun Long.notSameDayTo(that: Long): Boolean = !isSameDay(this, that)
 
     /**
      * 时间戳（毫秒）转换为可读时间格式

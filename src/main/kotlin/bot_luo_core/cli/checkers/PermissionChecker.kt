@@ -15,7 +15,7 @@ class PermissionChecker: Checker {
         val p2 = context.groupF.pmsGroup.readPmsOn(cmd)
         val b1 = p1 >= cmd.pmsLevel
         val b2 = p2 >= cmd.pmsLevel
-        if (!b1 && !b2) fatal("权限不足，要求：${cmd.pmsLevel.name} 群组权限：${p2.name} 用户权限：${p1.name}".toPlainText())
+        if (!b1 && !b2) throw CheckerFatal("权限不足，要求：${cmd.pmsLevel.name} 群组权限：${p2.name} 用户权限：${p1.name}")
     }
 
 }

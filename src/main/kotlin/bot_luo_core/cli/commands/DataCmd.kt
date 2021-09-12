@@ -85,7 +85,7 @@ class DataCmd(context: CmdContext) : Cmd(context) {
         table.th("写入${objName}数据 —— $objId")
         table.p("/"+path.joinToString("/")).br().br()
         try { withLockedAccessing(dataObject) {
-            val (old, new) = writeByPath(dataObject.jsonObj, path, value)
+            val (old, new) = writeByPathTyped(dataObject.jsonObj, path, defaultCast(value))
             table.tr(formatValue(old)).tb("->").tb(formatValue(new))
             context.print(table.toString())
             return SUCCESS
@@ -103,7 +103,7 @@ class DataCmd(context: CmdContext) : Cmd(context) {
         table.th("写入${arrayName}数据 —— $arrayId")
         table.p("/"+path.joinToString("/")).br().br()
         try { withLockedAccessing(dataArray) {
-            val (old, new) = writeByPath(dataArray.jsonArray, path, value)
+            val (old, new) = writeByPathTyped(dataArray.jsonArray, path, defaultCast(value))
             table.tr(formatValue(old)).tb("->").tb(formatValue(new))
             context.print(table.toString())
             return SUCCESS
@@ -218,6 +218,18 @@ class DataCmd(context: CmdContext) : Cmd(context) {
             }
         }
 
+        private fun defaultCast(input: String): Any? {
+            return input.toBigIntegerOrNull()?:
+                input.toBigDecimalOrNull()?:
+                input.toBooleanStrictOrNull()?:
+                when (input) {
+                    "{}" -> JSONObject()
+                    "[]" -> JSONArray()
+                    "null" -> null
+                    else -> input
+                }
+        }
+
         private fun objectGet(obj: JSONObject, table: TableBuilder) {
             for ((k, v) in obj.innerMap) {
                 table.tr("$k:").tb(formatValue(v))
@@ -264,72 +276,6 @@ class DataCmd(context: CmdContext) : Cmd(context) {
                         readByPath(obj[index], path.apply { removeAt(0) }, table)
                     }
                     else -> throw NullPointerException()
-                }
-            }
-        }
-
-        /**
-         * 写入数据
-         *
-         * 若此路径已存在值，则根据旧值类型转换新值，转换失败则写入[String]
-         *
-         * 返回 [Pair] (旧数据,新数据)
-         */
-        @Throws(NullPointerException::class)
-
-        private fun writeByPath(obj: Any?, path: ArrayList<String>, value: String): Pair<Any?,Any> {
-            when (path.size) {
-                0 -> throw NullPointerException()
-                1 -> {
-                    when (obj) {
-                        is MutableMap<*, *> -> {
-                            obj as MutableMap<String, Any?>
-                            val oldValue = obj[path[0]]
-                            when (obj[path[0]]) {
-                                is String -> obj[path[0]] = value
-                                is Number -> obj[path[0]] = value.toBigDecimalOrNull()?: value
-                                is Boolean -> obj[path[0]] = value.toBooleanStrictOrNull()?: value
-                                null -> obj[path[0]] = value
-                                else -> throw NullPointerException()
-                            }
-                            return oldValue to obj[path[0]]!!
-                        }
-                        is MutableList<*> -> {
-                            obj as MutableList<Any>
-                            val index = path[0].toIntOrNull()?: throw NullPointerException()
-                            if (index !in 0..obj.size) throw IndexOutOfBoundsException()
-                            val oldValue: Any?
-                            if (index == obj.size) {
-                                oldValue = null
-                                obj.add(value)
-                            } else {
-                                oldValue = obj[index]
-                                when (obj[index]) {
-                                    is String -> obj[index] = value
-                                    is Number -> obj[index] = value.toBigDecimalOrNull() ?: value
-                                    is Boolean -> obj[index] = value.toBooleanStrictOrNull() ?: value
-                                    else -> throw NullPointerException()
-                                }
-                            }
-                            return oldValue to obj[index]
-                        }
-                        else -> throw NullPointerException()
-                    }
-                }
-                else -> {
-                    return when (obj) {
-                        is JSONObject -> {
-                            val key = path[0]
-                            if (!obj.containsKey(key)) throw NullPointerException()
-                            writeByPath(obj[key], path.apply { removeAt(0) }, value)
-                        }
-                        is JSONArray -> {
-                            val index = path[0].toIntOrNull() ?: throw NullPointerException()
-                            if (index !in obj.indices) throw IndexOutOfBoundsException()
-                            writeByPath(obj[index], path.apply { removeAt(0) }, value)
-                        }
-                        else -> throw NullPointerException()
-                    }
                 }
             }
         }

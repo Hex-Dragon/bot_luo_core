@@ -114,18 +114,19 @@ class TableBuilder (
         y = -1
     }
 
-    fun prettyLines(title: String, lines: Int, action: (index: Int, builder: TableBuilder)->Unit): TableBuilder {
-        when (lines) {
+    fun <T> prettyLines(title: String, content: Iterable<T>, action: (item: T, builder: TableBuilder)->Unit): TableBuilder {
+        when (content.count()) {
             0 -> {}
             1 -> {
                 tr(title)
-                action(0, this)
+                action(content.elementAt(0), this)
             }
             else -> {
                 tr(title)
-                for (i in 0 until lines) {
+                val iterator = content.iterator()
+                while (iterator.hasNext()) {
                     tr("")
-                    action(i, this)
+                    action(iterator.next(), this)
                 }
             }
         }

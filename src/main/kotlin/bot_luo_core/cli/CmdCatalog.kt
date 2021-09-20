@@ -4,6 +4,9 @@ import bot_luo_core.cli.annotation.Method
 import bot_luo_core.cli.commands.*
 import bot_luo_core.cli.exceptions.CliInternalError
 import bot_luo_core.util.Text.escapeRegex
+import java.lang.IllegalArgumentException
+import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.full.functions
@@ -12,14 +15,17 @@ import kotlin.reflect.full.hasAnnotation
 object CmdCatalog {
     val COMMANDS = ArrayList<CmdExecutable>()
 
+    /**
+     * 命令头中的非法字符
+     */
     private val ILLEGAL_CHAR = arrayOf('.','*','\"','。','/','\\','[',']','(',')','{','}')
 
     init {
         //注册内建命令
         registerCmd(
             AnnounceCmd::class,
-            DataCmd::class,
             ControlCmd::class,
+            DataCmd::class,
             DebugCmd::class,
             DumpFileCmd::class,
             ExecuteCmd::class,
@@ -27,6 +33,7 @@ object CmdCatalog {
             ListCmd::class,
             PermissionCmd::class,
             SayCmd::class,
+            StatCmd::class,
             SwitchCmd::class,
             TagCmd::class
         )
@@ -42,8 +49,8 @@ object CmdCatalog {
                     @Suppress("UNCHECKED_CAST")
                     val cex = CmdExecutable(cmd, f as KFunction<CmdReceipt>)
 
-                    if (cex.cmdHead.any { it.any { c -> c in ILLEGAL_CHAR } }) throw CliInternalError("命令 $cex 中存在不合法的字符")
-                    if (cex.methHead.any { it.any { c -> c in ILLEGAL_CHAR } }) throw CliInternalError("命令 $cex 中存在不合法的字符")
+                    if (cex.cmdHead.any { it.any { c -> c in ILLEGAL_CHAR } }) throw CliInternalError(IllegalArgumentException("命令 $cex 中存在不合法的字符"))
+                    if (cex.methHead.any { it.any { c -> c in ILLEGAL_CHAR } }) throw CliInternalError(IllegalArgumentException("命令 $cex 中存在不合法的字符"))
 
                     COMMANDS.add(cex)
                 }

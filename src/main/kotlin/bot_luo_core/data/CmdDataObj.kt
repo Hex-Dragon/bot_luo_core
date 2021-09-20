@@ -4,7 +4,8 @@ import bot_luo_core.cli.CmdExecutable
 import kotlinx.atomicfu.AtomicInt
 import kotlinx.atomicfu.atomic
 
-abstract class CmdDataObj(filePath: String): DataObject(filePath, 3000, true) {
+abstract class CmdDataObj(filePath: String, autoSaveInterval: Long, saveAndUnload: Boolean):
+    DataObject(filePath, autoSaveInterval, saveAndUnload) {
 
     private val cmdData: HashMap<String, CmdData> =  getObj("cmdData")?: HashMap()
     private val cmdHandling = HashMap<CmdExecutable, AtomicInt>()

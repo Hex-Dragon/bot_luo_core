@@ -20,10 +20,10 @@ import org.apache.logging.log4j.LogManager
 
 object Logger {
 
-    private val sysLogger = LogManager.getLogger("SYS")
-    private val msgLogger = LogManager.getLogger("MSG")
-    private val eventLogger = LogManager.getLogger("EVENT")
-    private val cliLogger = LogManager.getLogger("CLI")
+    private val sysLogger = LogManager.getLogger("Sys")
+    private val msgLogger = LogManager.getLogger("Msg")
+    private val eventLogger = LogManager.getLogger("Event")
+    private val cliLogger = LogManager.getLogger("Cli")
 
     /*  ========================  SYS  ========================  */
 
@@ -124,4 +124,7 @@ object Logger {
 
     fun log(cmd: CmdExecutable, info: String, level: Level = Level.INFO) =
         cliLog(level, "<${cmd.id}> $info")
+
+    fun cliError(e: Throwable, level: Level) =
+        cliLog(level, e::class.simpleName + ": " + e.message + "\n" + e.stackTraceToString())
 }

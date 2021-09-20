@@ -2,6 +2,8 @@ package bot_luo_core.cli.exceptions
 
 import bot_luo_core.cli.Checker
 import net.mamoe.mirai.message.data.Message
+import org.apache.logging.log4j.Level
+import org.apache.logging.log4j.Level.INFO
 import kotlin.reflect.KClass
 
 /**
@@ -12,5 +14,5 @@ class CheckerFatal(
     override val message: String,
     val checker: KClass<out Checker>
     ) : CliException() {
-    override val level = CliExceptionLevel.INFO
+    override val logLevel: Level = INFO
 }

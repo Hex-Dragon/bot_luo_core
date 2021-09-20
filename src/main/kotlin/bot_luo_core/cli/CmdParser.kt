@@ -12,6 +12,8 @@ import kotlin.reflect.full.createInstance
 
 /**
  * # 命令解析器类
+ *
+ * @throws NoCmdFound 无匹配命令
  */
 class CmdParser(private val reader: MessageReader) {
 

@@ -85,6 +85,7 @@ class DataCmd(context: CmdContext) : Cmd(context) {
         table.th("写入${objName}数据 —— $objId")
         table.p("/"+path.joinToString("/")).br().br()
         try { withLockedAccessing(dataObject) {
+            dataObject.markDirty()
             val (old, new) = writeByPathTyped(dataObject.jsonObj, path, defaultCast(value))
             table.tr(formatValue(old)).tb("->").tb(formatValue(new))
             context.print(table.toString())
@@ -103,6 +104,7 @@ class DataCmd(context: CmdContext) : Cmd(context) {
         table.th("写入${arrayName}数据 —— $arrayId")
         table.p("/"+path.joinToString("/")).br().br()
         try { withLockedAccessing(dataArray) {
+            dataArray.markDirty()
             val (old, new) = writeByPathTyped(dataArray.jsonArray, path, defaultCast(value))
             table.tr(formatValue(old)).tb("->").tb(formatValue(new))
             context.print(table.toString())
@@ -121,6 +123,7 @@ class DataCmd(context: CmdContext) : Cmd(context) {
         table.th("写入${objName}数据 —— $objId")
         table.p("/"+path.joinToString("/")).br().br()
         try { withLockedAccessing(dataObject) {
+            dataObject.markDirty()
             val (old, new) = writeByPathTyped(dataObject.jsonObj, path, value castTo type)
             table.tr(formatValue(old)).tb("->").tb(formatValue(new))
             context.print(table.toString())
@@ -139,6 +142,7 @@ class DataCmd(context: CmdContext) : Cmd(context) {
         table.th("写入${arrayName}数据 —— $arrayId")
         table.p("/"+path.joinToString("/")).br().br()
         try { withLockedAccessing(dataArray) {
+            dataArray.markDirty()
             val (old, new) = writeByPathTyped(dataArray.jsonArray, path, value castTo type)
             table.tr(formatValue(old)).tb("->").tb(formatValue(new))
             context.print(table.toString())

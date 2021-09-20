@@ -3,24 +3,21 @@ package bot_luo_core.cli
 import bot_luo_core.bot.VirtualMessageEvent
 import bot_luo_core.cli.Checker.Companion.order
 import bot_luo_core.cli.exceptions.*
+import bot_luo_core.data.*
 import bot_luo_core.data.Config.CMD_PREFIX
 import bot_luo_core.data.Config.MAX_OUTPUT_LEN
-import bot_luo_core.data.Groups
-import bot_luo_core.data.Users
-import bot_luo_core.data.withAccessing
-import bot_luo_core.data.withLockedAccessing
 import bot_luo_core.util.Logger
 import bot_luo_core.util.Text.firstNotWhitespace
-import bot_luo_core.util.Time.isSameDayTo
+import bot_luo_core.util.Text.limitEnd
 import bot_luo_core.util.Time.notSameDayTo
-import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import net.mamoe.mirai.event.events.GroupAwareMessageEvent
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.At
 import net.mamoe.mirai.message.data.content
 import net.mamoe.mirai.message.data.isContentEmpty
 import net.mamoe.mirai.message.data.toPlainText
+import org.apache.logging.log4j.Level
 import java.lang.reflect.InvocationTargetException
 import kotlin.jvm.Throws
 import kotlin.reflect.full.allSuperclasses
@@ -61,36 +58,47 @@ object CmdHandler {
     /**
      * ## 命令上下文唤起命令
      *
-     * 捕捉命令执行异常和发送回执消息
+     * 捕捉命令执行异常和发送回执消息，有需要时发送命令猜测
      *
-     * 有需要时发送命令猜测
+     * 每次call会新建一个[CoroutineScope]
      */
-    suspend fun call(context: CmdContext) {
+    private suspend fun call(context: CmdContext) { CoroutineScope(Dispatchers.IO).launch {
         try {
-            withAccessing(context.user, context.group) {
+            withAccessing(context.user, context.group, Cmds) {
                 execute(context)
             }
         } catch (e: Exception) {
-            when {
-                e::class.simpleName in context.groupF.mutedExceptions ||
-                        e::class.allSuperclasses.any { it.simpleName in context.groupF.mutedExceptions } -> {}
-                e is CheckerFatal && e.checker.simpleName in context.groupF.mutedCheckers -> {}
-                e is CliException && !e.output.isContentEmpty() -> {
-                    context.sendOutputWithLog(At(context.user.id) + e.output)
+            if (e is CliException) {
+                when {
+                    e::class.simpleName in context.groupF.mutedExceptions ||
+                            e::class.allSuperclasses.any { it.simpleName in context.groupF.mutedExceptions } -> {
+                    }
+                    e is CliTargetException && (e.targetException::class.simpleName in context.groupF.mutedExceptions ||
+                            e.targetException::class.allSuperclasses.any { it.simpleName in context.groupF.mutedExceptions }) -> {
+                    }
+                    e is CheckerFatal && e.checker.simpleName in context.groupF.mutedCheckers -> {
+                    }
+                    else -> {
+                        if (!e.output.isContentEmpty())
+                            context.sendOutputWithLog(At(context.user.id) + e.output)
+                    }
                 }
-                else -> context.sendOutputWithLog("发生异常：${e::class.simpleName}".toPlainText())
+                Logger.cliLog(e.logLevel, e.message)
+            } else {
+                context.sendOutputWithLog("发生未处理异常：${e::class.simpleName}".toPlainText())
+                Logger.cliError(e, Level.ERROR)
             }
-            return
+            return@launch
         }
         when (context.uploadOutputFile) {
-            0 -> {
+            0 -> {  //不自动上传
                 if (context.getOutput().content.length > MAX_OUTPUT_LEN) {
-                    context.sendOutputWithLog("输出过大，考虑使用dumpfile命令获取输出")
+                    context.sendOutputWithLog(context.getOutput().limitEnd(MAX_OUTPUT_LEN) + "\n输出过大，考虑使用dumpfile命令获取输出")
                 } else {
                     context.sendOutputWithLog()
                 }
             }
-            1 -> {
+            1 -> {  //长度超出限制时上传
                 if (context.getOutput().content.length > MAX_OUTPUT_LEN) {
                     val receipt = context.uploadOutput()
                     if (receipt == null) {
@@ -100,14 +108,14 @@ object CmdHandler {
                     context.sendOutputWithLog()
                 }
             }
-            2 -> {
+            2 -> {  //始终上传
                 val receipt = context.uploadOutput()
                 if (receipt == null) {
                     context.sendOutputWithLog("输出上传文件失败")
                 }
             }
         }
-    }
+    } }
 
     /**
      * ## 执行命令
@@ -138,7 +146,7 @@ object CmdHandler {
 
                     Logger.log(cmd, context, "执行完成：${res.success}")
 
-                    runBlocking { withLockedAccessing(context.user, context.group) {
+                    runBlocking { withLockedAccessing(context.user, context.group, Cmds) {
                         if (res.addCount) {
                             val ud = context.user.readCmdData(cmd)
                             ud.totalCount++
@@ -150,6 +158,11 @@ object CmdHandler {
                             if (time notSameDayTo gd.lastTime) gd.dayCount = 0
                             gd.dayCount++
                             context.group.writeCmdData(cmd, gd)
+                            val ad = Cmds.readCmdData(cmd)
+                            ad.totalCount++
+                            if (time notSameDayTo ad.lastTime) ad.dayCount = 0
+                            ad.dayCount++
+                            Cmds.writeCmdData(cmd, ad)
                         }
 
                         if (res.setTime) {
@@ -159,6 +172,9 @@ object CmdHandler {
                             val gd = context.group.readCmdData(cmd)
                             gd.lastTime = context.time
                             context.group.writeCmdData(cmd, gd)
+                            val ad = Cmds.readCmdData(cmd)
+                            ad.lastTime = context.time
+                            Cmds.writeCmdData(cmd, ad)
                         }
                     } }
 
@@ -174,7 +190,7 @@ object CmdHandler {
                                 else -> throw CmdExecutingError(e.targetException)
                             }
                         }
-                        else -> throw CliInternalError("调用命令时发送错误：\n${e::class.simpleName}".toPlainText(), "调用命令时发送错误：\n${e::class.simpleName}\n${e.message}")
+                        else -> throw CliInternalError(e)
                     }
                 } finally {
                     context.user.cmdFinished(cmd)

@@ -94,18 +94,18 @@ class HelpCmd(context: CmdContext) : Cmd(context) {
                 table.th("帮助 —— 命令($k)[${v[0].cmdHead.joinToString(",")}]").br()
                 table.p(v[0].usage).br().br()
                 map.forEach { (_ ,value ) ->
-                    table.prettyLines(value[0].subTitle, value.size) { index, builder ->
-                        builder.tb(value[index].headPara).tb(value[index].getParasFormat())
+                    table.prettyLines(value[0].subTitle, value) { item, builder ->
+                        builder.tb(item.headPara).tb(item.getParasFormat())
                     }.tb(value[0].subUsage)
                 }
-                table.th().prettyLines("示例：",spl.size) { index, builder ->
-                    builder.tb(spl[index])
+                table.th().prettyLines("示例：",spl) { item, builder ->
+                    builder.tb(item)
                 }
-                table.th().prettyLines("说明：",v[0].caption.size) { index, builder ->
-                    builder.tb(v[0].caption[index])
+                table.th().prettyLines("说明：",v[0].caption.toList()) { item, builder ->
+                    builder.tb(item)
                 }
-                table.th().prettyLines("注意：",v[0].notice.size) { index, builder ->
-                    builder.tb(v[0].notice[index])
+                table.th().prettyLines("注意：",v[0].notice.toList()) { item, builder ->
+                    builder.tb(item)
                 }
             }
             return table.toString()

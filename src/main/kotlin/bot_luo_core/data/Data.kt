@@ -55,7 +55,7 @@ abstract class Data(
     fun access() {
         accessing.addAndGet(1)
         saveJob?.cancel()
-        savingJobs.remove(saveJob)
+        savingJobs.remove(this)
         saveJob = null
     }
 
@@ -76,19 +76,18 @@ abstract class Data(
      */
     protected fun launchSaveJob() {
         saveJob?.cancel()
-        savingJobs.remove(saveJob)
+        savingJobs.remove(this)
         saveJob = scope.launch {
             try {
                 delay(autoSaveInterval)
             } catch (ignore: CancellationException) {
                 return@launch
             }
-            if (changed) savingJobs[saveJob]?.start()
+            if (changed) savingJobs[this@Data]?.invoke()
             if (saveAndUnload) unload()
-        }.apply {
-            savingJobs[this] = scope.launch(start = CoroutineStart.LAZY) { save() }
-            this.invokeOnCompletion { savingJobs.remove(this) }
+            savingJobs.remove(this@Data)
         }
+        savingJobs[this] =  { save() }
     }
 
     abstract fun save()
@@ -106,8 +105,15 @@ abstract class Data(
     fun exists() = File(filePath).exists()
 
     companion object {
-        val savingJobs = HashMap<Job, Job>()
+        val savingJobs = HashMap<Data, () -> Unit>()
         val scope = CoroutineScope(Dispatchers.IO)
+    }
+
+    /**
+     * 手动标记这个[Data]被修改过，需要保存
+     */
+    fun markDirty() {
+        changed = true
     }
 }
 

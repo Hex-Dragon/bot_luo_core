@@ -4,7 +4,7 @@ object Config {
     /**
      * 命令前缀
      */
-    val CMD_PREFIX = arrayOf('.','。','/')
+    val CMD_PREFIX = arrayOf('.','。')
 
     /**
      * 回复-确认
@@ -19,5 +19,22 @@ object Config {
     /**
      * 输出消息最大长度
      */
-    const val MAX_OUTPUT_LEN = 1000
+    const val MAX_OUTPUT_LEN = 1500
+
+    /**
+     * 默认静音的[Exception]
+     */
+    val MUTED_EXCEPTIONS = arrayListOf(
+        "NoCmdFound"
+    )
+
+    /**
+     * 默认静音的[bot_luo_core.cli.Checker]
+     */
+    val MUTED_CHECKERS = arrayListOf(
+        "PermissionChecker",
+        "GroupCmdWorkingChecker",
+        "UserCmdWorkingChecker",
+        "BotRunningChecker"
+    )
 }

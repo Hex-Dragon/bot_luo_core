@@ -1,6 +1,7 @@
 package bot_luo_core.cli.exceptions
 
 import net.mamoe.mirai.message.data.Message
+import org.apache.logging.log4j.Level
 
 /**
  * # CLI异常基类
@@ -11,7 +12,7 @@ abstract class CliException: Exception() {
     /**
      * 等级
      */
-    abstract val level: CliExceptionLevel
+    abstract val logLevel: Level
 
     /**
      * 输出消息，用于错误信息

@@ -16,6 +16,8 @@ import net.mamoe.mirai.event.*
 import net.mamoe.mirai.event.events.*
 import net.mamoe.mirai.message.data.MessageChain
 import net.mamoe.mirai.utils.BotConfiguration
+import net.mamoe.mirai.utils.LoggerAdapters
+import net.mamoe.mirai.utils.MiraiLogger
 import org.apache.logging.log4j.Level
 import kotlin.jvm.Throws
 
@@ -40,6 +42,11 @@ object BotLuo {
      */
     private val groupMap = HashMap<Long,ArrayList<Bot>>()
 
+    init {
+        LoggerAdapters.useLog4j2()
+        Runtime.getRuntime().addShutdownHook(Thread{ saveAll() })
+    }
+
     /**
      * ## 登录所有机器人账号
      *
@@ -54,44 +61,6 @@ object BotLuo {
                 protocol = BotConfiguration.MiraiProtocol.ANDROID_PAD
             }
             bot.login()
-
-//            //捕获群员退群（踢出）事件
-//            bot.eventChannel.subscribeAlways<MemberLeaveEvent> {
-//                if (bot.isMainBot(this.groupId)) {
-//                    Logger.receive(this)
-//                    if (this is MemberLeaveEvent.Kick)
-//                        WarnCMD.closeRec(Users.readUser(member.id),operator?.id, Time.time())
-//                    else
-//                        WarnCMD.closeRec(Users.readUser(member.id),null, Time.time())
-//                }
-//            }
-//
-//            //捕获加群事件
-//            bot.eventChannel.subscribeAlways<MemberJoinEvent> {
-//                if (bot.isMainBot(this.groupId)) {
-//                    Logger.receive(this)
-//                    if (group.id == Tags.readGroupTag("#rsc")[0].id) return@subscribeAlways
-//                    //查询Warn记录，若大于3分则在#clip群发送警告
-//                    val user = Users.readUser(this.member.id)
-//                    if (WarnCMD.getScore(user) >= 3) {
-//                        val clipId = Tags.readGroupTag("#clip")[0]
-//                        sendGroupMessage("死人 ${member.id} 想在 ${this.group.name}(${this.group.id}) 复活", clipId.id)
-//                        val env = CmdEnv(null, CmdEnvType.GROUP, Time.time(), clipId, null, User.virtualUser(), CmdParser(StringReader("")))
-//                        WarnCMD(env).get(user,null)
-//                    }
-//                }
-//            }
-//
-//            //捕获加群申请事件
-//            bot.eventChannel.subscribeAlways<MemberJoinRequestEvent> {
-//                if (bot.isMainBot(this.groupId)) {
-//                    Logger.receive(this)
-//                    val group = Groups.readGroup(this.groupId)
-//                    if (group.getCmdStateBoolean(GuardCMD::class.getName(),"auto")) {
-//                        GuardCMD.judge(this)
-//                    }
-//                }
-//            }
         }
 
         buildGroupMap()
@@ -116,11 +85,26 @@ object BotLuo {
             Logger.log(this, Level.INFO)
             buildGroupMap()
         }
+        GlobalEventChannel.subscribeAlways<BotMuteEvent> {
+            Logger.log(this, Level.INFO)
+            buildGroupMap()
+        }
+        GlobalEventChannel.subscribeAlways<BotUnmuteEvent> {
+            Logger.log(this, Level.INFO)
+            buildGroupMap()
+        }
+        GlobalEventChannel.subscribeAlways<MemberJoinRequestEvent> {
+            Logger.log(this, Level.INFO)
+        }
+        GlobalEventChannel.subscribeAlways<MemberJoinEvent> {
+            Logger.log(this, Level.INFO)
+        }
+        GlobalEventChannel.subscribeAlways<MemberLeaveEvent> {
+            Logger.log(this, Level.INFO)
+        }
 
         GlobalEventChannel.subscribeAlways<MessageEvent>(priority = EventPriority.NORMAL) {
             if (this.sender is AnonymousMember) return@subscribeAlways
-            //TODO 解除群锁
-            if (this is GroupAwareMessageEvent && group.id != 565056329L) return@subscribeAlways
             if (this is MessageSyncEvent) return@subscribeAlways
             if (this is GroupAwareMessageEvent && !bot.isMainBotOf(this.group.id)) return@subscribeAlways
             CmdHandler.call(this)
@@ -134,11 +118,6 @@ object BotLuo {
             CmdHandler.call(this)
             if (this.isIntercepted) Logger.log(this, Level.INFO) else Logger.log(this, Level.DEBUG)
         }
-//        GlobalEventChannel.subscribeAlways<MessagePreSendEvent> {
-//            this.cancel()   //TODO 解除张口结舌之术
-//        }
-
-        Runtime.getRuntime().addShutdownHook(Thread{ saveAll() })
     }
 
     /**
@@ -272,10 +251,8 @@ object BotLuo {
     }
 
     fun saveAll() {
-        runBlocking {
-            Data.savingJobs.values.forEach { it.start(); it.join() }
-            Data.savingJobs.keys.forEach { it.cancelAndJoin() }
-        }
+        Data.savingJobs.values.forEach { it.invoke() }
+        Data.savingJobs.clear()
     }
 
 }

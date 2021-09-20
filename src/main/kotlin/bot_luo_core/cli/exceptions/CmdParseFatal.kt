@@ -3,13 +3,15 @@ package bot_luo_core.cli.exceptions
 import net.mamoe.mirai.message.data.Message
 import net.mamoe.mirai.message.data.MessageChainBuilder
 import net.mamoe.mirai.message.data.toPlainText
+import org.apache.logging.log4j.Level
+import org.apache.logging.log4j.Level.INFO
 import kotlin.reflect.KType
 
 /**
  * 命令行解析错误
  */
 abstract class CmdParseFatal: CliException() {
-    override val level = CliExceptionLevel.INFO
+    override val logLevel: Level = INFO
 
     abstract val pos: Int
 }

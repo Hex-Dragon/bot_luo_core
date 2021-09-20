@@ -16,7 +16,7 @@ import net.mamoe.mirai.contact.MemberPermission
 class Group internal constructor(
     override val id: Long,
     override var bot: Bot? = null
-) : CmdDataObj("data/groups/$id.json"), BotContact {
+) : CmdDataObj("data/groups/$id.json", 30000L, true), BotContact {
     override val contactType = BotContactType.Group
     override val defaultData: CmdData
         get() = CmdData(0,0,0,false)//群组命令默认关闭
@@ -41,11 +41,11 @@ class Group internal constructor(
         set(value) = setObj("pmsGroup", value.name)
 
     var mutedExceptions: ArrayList<String>
-        get() = getObj("mutedExceptions")?: ArrayList()
+        get() = getObj("mutedExceptions")?: Config.MUTED_EXCEPTIONS
         set(value) = setObj("mutedExceptions", value)
 
     var mutedCheckers: ArrayList<String>
-        get() = getObj("mutedCheckers")?: ArrayList()
+        get() = getObj("mutedCheckers")?: Config.MUTED_CHECKERS
         set(value) = setObj("mutedCheckers", value)
 
     inline fun withServeBot(pms: MemberPermission = MemberPermission.MEMBER, action: (contact: Group)->Unit): Boolean {

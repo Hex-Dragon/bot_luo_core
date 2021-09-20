@@ -12,7 +12,7 @@ class LiteralArgHandler: ArgHandler<Unit> {
     override val name = "字面量参数解析器"
 
     override fun handle(reader: MessageReader, pos: Int, argName: String?, type: KType?, context: CmdContext?) {
-        argName?: throw CliInternalError("缺少字面量名称")
+        argName?: throw CliInternalError(NullPointerException ("缺少字面量名称"))
         val input = reader.readUnquotedString()
         if (input != argName) throw HandlerFatal(input, argName, pos, type)
     }

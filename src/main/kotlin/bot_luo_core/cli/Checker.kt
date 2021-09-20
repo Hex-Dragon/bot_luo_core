@@ -16,7 +16,7 @@ interface Checker {
     fun check(cmd: CmdExecutable, context: CmdContext)
 
     fun CheckerFatal(output: Message, message: String) = CheckerFatal(output, "$name 检定失败：${message}", this::class)
-    fun CheckerFatal(message: String) = CheckerFatal(message.toPlainText(), "$name 检定失败：${message}")
+    fun CheckerFatal(message: String) = CheckerFatal(message.toPlainText(), message)
 
     companion object {
 
@@ -30,7 +30,9 @@ interface Checker {
          */
         val CHECKERS = arrayListOf(
             BotRunningChecker::class,
+            GroupCDChecker::class,
             GroupCmdWorkingChecker::class,
+            GroupDayLimitChecker::class,
             PermissionChecker::class,
             UserCDChecker::class,
             UserCmdWorkingChecker::class,

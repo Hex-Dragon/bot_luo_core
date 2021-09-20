@@ -30,9 +30,9 @@ import kotlin.reflect.full.primaryConstructor
  */
 class CmdExecutable(private val cmd: KClass<out Cmd>, private val meth: KFunction<CmdReceipt>) {
 
-    val cmdAnn: Command by lazy { cmd.findAnnotation()?:throw CliInternalError("命令类 $cmd 未被注解") }
-    val methAnn: Method by lazy { meth.findAnnotation()?:throw CliInternalError("命令类 $cmd 中方法 ${meth.name} 未被注解") }
-    val paramsAnn: Map<KParameter, Argument> by lazy { meth.parameters.filter { it.kind == KParameter.Kind.VALUE }.associateWith { it.findAnnotation()?: throw CliInternalError("命令类 $cmd 方法 ${meth.name} 参数 ${it.name} 未被注解") } }
+    val cmdAnn: Command by lazy { cmd.findAnnotation()?:throw CliInternalError(NullPointerException ("命令类 $cmd 未被注解")) }
+    val methAnn: Method by lazy { meth.findAnnotation()?:throw CliInternalError(NullPointerException ("命令类 $cmd 中方法 ${meth.name} 未被注解")) }
+    val paramsAnn: Map<KParameter, Argument> by lazy { meth.parameters.filter { it.kind == KParameter.Kind.VALUE }.associateWith { it.findAnnotation()?: throw CliInternalError(NullPointerException ("命令类 $cmd 方法 ${meth.name} 参数 ${it.name} 未被注解")) } }
 
     val cmdName = cmdAnn.name
     val cmdHead = listOf(cmdAnn.name, cmdAnn.display, *cmdAnn.alias)

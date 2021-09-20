@@ -5,6 +5,7 @@ import bot_luo_core.cli.exceptions.*
 import bot_luo_core.cli.handlers.LiteralArgHandler
 import bot_luo_core.data.Config.CMD_PREFIX
 import net.mamoe.mirai.message.data.content
+import net.mamoe.mirai.message.data.isContentBlank
 import net.mamoe.mirai.message.data.isContentEmpty
 import kotlin.jvm.Throws
 import kotlin.reflect.KType
@@ -46,7 +47,7 @@ class CmdParser(private val reader: MessageReader) {
     fun finish() {
         val pos = reader.getCursor()
         val rem = reader.readRemainingMessage()
-        if (!rem.isContentEmpty()) throw SurplusArg(pos, rem.content)
+        if (!rem.isContentBlank()) throw SurplusArg(pos, rem.content)
     }
 
     @Throws(CmdParseFatal::class)

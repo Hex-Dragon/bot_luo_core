@@ -4,6 +4,7 @@ import bot_luo_core.cli.*
 import bot_luo_core.cli.annotation.Argument
 import bot_luo_core.cli.annotation.Command
 import bot_luo_core.cli.annotation.Method
+import bot_luo_core.cli.checkers.GroupCmdWorkingChecker
 import bot_luo_core.cli.checkers.UserParallelExecutingChecker
 import bot_luo_core.cli.exceptions.*
 import bot_luo_core.cli.handlers.MultiGroupArgHandler
@@ -28,7 +29,7 @@ import kotlin.reflect.KType
 )
 class ExecuteCmd(context: CmdContext) : Cmd(context) {
 
-    @Method(name = "", alias = [], pmsLevel = CmdPermissionLevel.OP, ignoreCheckers = [UserParallelExecutingChecker::class])
+    @Method(name = "", alias = [], pmsLevel = CmdPermissionLevel.OP, ignoreCheckers = [UserParallelExecutingChecker::class, GroupCmdWorkingChecker::class])
     fun run (
         @Argument("子命令", handler = ExecuteArgHandler::class)
         contexts: ArrayList<CmdContext>

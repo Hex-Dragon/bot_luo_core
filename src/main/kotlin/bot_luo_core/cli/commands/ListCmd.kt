@@ -17,7 +17,7 @@ import kotlin.reflect.full.createInstance
 class ListCmd(context: CmdContext) : Cmd(context) {
 
     @Method(name = "", alias = [], pmsLevel = CmdPermissionLevel.NORMAL, title = "命令列表")
-    suspend fun list (): CmdReceipt { with(context) {
+    fun list (): CmdReceipt { with(context) {
         val table = TableBuilder(4)
         table.th("命令列表 —— 群组 ${group.name}(${group.id})").br()
 
@@ -33,13 +33,13 @@ class ListCmd(context: CmdContext) : Cmd(context) {
             table.tr(if (working) "[√]" else "[×]").tb(cmd.display).tb("(${cmd.cmdName})")
         }
 
-        sendMessageWithLog(table.toString())
+        context.print(table.toString())
 
         return SUCCESS
     }}
 
     @Method(name = "detail", alias = ["d"], pmsLevel = CmdPermissionLevel.HIGH, title = "详细列表")
-    suspend fun listD (): CmdReceipt { with(context) {
+    fun listD (): CmdReceipt { with(context) {
         val table = TableBuilder(4)
         table.th("命令列表 —— 群组 ${group.name}(${group.id})").br()
 
@@ -50,13 +50,13 @@ class ListCmd(context: CmdContext) : Cmd(context) {
             } catch (ignore: CheckerFatal) {}
         }
 
-        sendMessageWithLog(table.toString())
+        context.print(table.toString())
 
         return SUCCESS
     }}
 
     @Method(name = "all", alias = ["a"], pmsLevel = CmdPermissionLevel.OP, title = "全部命令")
-    suspend fun listA (): CmdReceipt { with(context) {
+    fun listA (): CmdReceipt { with(context) {
         val table = TableBuilder(4)
         table.th("命令列表 —— 群组 ${group.name}(${group.id})").br()
 
@@ -64,7 +64,7 @@ class ListCmd(context: CmdContext) : Cmd(context) {
             table.tr(if (group.readCmdData(cex).working) "[√]" else "[×]").tb(cex.idFixed).tb(cex.subTitle)
         }
 
-        sendMessageWithLog(table.toString())
+        context.print(table.toString())
 
         return SUCCESS
     }}

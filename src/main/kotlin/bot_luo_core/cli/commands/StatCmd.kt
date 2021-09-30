@@ -5,17 +5,13 @@ import bot_luo_core.cli.CmdCatalog.COMMANDS
 import bot_luo_core.cli.annotation.Argument
 import bot_luo_core.cli.annotation.Command
 import bot_luo_core.cli.annotation.Method
-import bot_luo_core.cli.checkers.GroupCmdWorkingChecker
-import bot_luo_core.cli.checkers.UserCmdWorkingChecker
-import bot_luo_core.cli.checkers.addon.GroupPermissionChecker
+import bot_luo_core.cli.checkers.addon.GroupOriginalPermissionChecker
 import bot_luo_core.cli.exceptions.CheckerFatal
 import bot_luo_core.cli.handlers.CmdExArgHandler
 import bot_luo_core.data.CmdDataObj
 import bot_luo_core.data.Cmds
 import bot_luo_core.util.TableBuilder
 import bot_luo_core.util.Time.relativeToE
-import bot_luo_core.util.Time.spanFromE
-import net.mamoe.mirai.message.data.MessageChain
 import kotlin.reflect.full.createInstance
 
 @Command(
@@ -47,9 +43,9 @@ class StatCmd(context: CmdContext) : Cmd(context) {
                     "${k}：${v.sumOf { carrier.readCmdData(it).totalCount }}次",
                     v.groupBy { it.methName }.entries
                 ) { (key, value), builder ->
-                    builder.tb("-$key:")
-                        .tb("${value.sumOf { carrier.readCmdData(it).totalCount }}次")
-                        .tb(value.maxOf { carrier.readCmdData(it).lastTime } relativeToE context.time)
+                    builder.td("-$key:")
+                        .td("${value.sumOf { carrier.readCmdData(it).totalCount }}次")
+                        .td(value.maxOf { carrier.readCmdData(it).lastTime } relativeToE context.time)
                 }
             }
             context.sendMessageWithLog(table.toString())
@@ -75,8 +71,8 @@ class StatCmd(context: CmdContext) : Cmd(context) {
             table.th("${name}统计 —— $id").br()
             filtered.groupBy { it.cmdName }.forEach { (k, v) ->
                 table.tr("$k:")
-                    .tb("${v.sumOf { carrier.readCmdData(it).totalCount }}次")
-                    .tb(v.maxOf { carrier.readCmdData(it).lastTime } relativeToE context.time)
+                    .td("${v.sumOf { carrier.readCmdData(it).totalCount }}次")
+                    .td(v.maxOf { carrier.readCmdData(it).lastTime } relativeToE context.time)
             }
             context.sendMessageWithLog(table.toString())
             SUCCESS
@@ -119,9 +115,7 @@ class StatCmd(context: CmdContext) : Cmd(context) {
     companion object {
 
         val justCheck = arrayOf(
-            GroupPermissionChecker::class,
-            GroupCmdWorkingChecker::class,
-            UserCmdWorkingChecker::class
+            GroupOriginalPermissionChecker::class
         )
     }
 }

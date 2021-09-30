@@ -55,10 +55,10 @@ class TagCmd(context: CmdContext) : Cmd(context) {
         withLockedAccessing(GroupTags) {
             for (t in tagIn) {
                 if (addToGroupTag(tag, t)) {
-                    table.tr().tb(t).tb("[√] success added")
+                    table.tr().td(t).td("[√] success added")
                     suc++
                 } else {
-                    table.tr().tb(t).tb("[×] duplicated item or circulated tag")
+                    table.tr().td(t).td("[×] duplicated item or circulated tag")
                 }
             }
         }
@@ -85,10 +85,10 @@ class TagCmd(context: CmdContext) : Cmd(context) {
         withLockedAccessing(GroupTags) {
             for (g in groupIn) {
                 if (addToGroupTag(tag, g.id.toString())) {
-                    table.tr(g.name).tb("(${g.id})").tb("[√] success added")
+                    table.tr(g.name).td("(${g.id})").td("[√] success added")
                     suc++
                 } else {
-                    table.tr(g.name).tb("(${g.id})").tb("[×] duplicated item")
+                    table.tr(g.name).td("(${g.id})").td("[×] duplicated item")
                 }
             }
         }
@@ -115,10 +115,10 @@ class TagCmd(context: CmdContext) : Cmd(context) {
         withLockedAccessing(UserTags) {
             for (t in tagIn) {
                 if (addToUserTag(tag, t)) {
-                    table.tr().tb(t).tb("[√] success added")
+                    table.tr().td(t).td("[√] success added")
                     suc++
                 } else {
-                    table.tr().tb(t).tb("[×] duplicated item or circulated tag")
+                    table.tr().td(t).td("[×] duplicated item or circulated tag")
                 }
             }
         }
@@ -145,10 +145,10 @@ class TagCmd(context: CmdContext) : Cmd(context) {
         withLockedAccessing(UserTags) {
             for (u in userIn) {
                 if (addToUserTag(tag, u.id.toString())) {
-                    table.tr(u.name).tb("(${u.id})").tb("[√] success added")
+                    table.tr(u.name).td("(${u.id})").td("[√] success added")
                     suc++
                 } else {
-                    table.tr(u.name).tb("(${u.id})").tb("[×] duplicated item")
+                    table.tr(u.name).td("(${u.id})").td("[×] duplicated item")
                 }
             }
         }
@@ -170,14 +170,14 @@ class TagCmd(context: CmdContext) : Cmd(context) {
                 table.tr(t)
             }
             for (t in BUILTIN_GROUP_TAGS) {
-                table.tr(t).tb("*")
+                table.tr(t).td("*")
             }
             context.print(table.toString())
             return SUCCESS
         } else {
             table.th("群组标签 —— 标签($tag)").br()
             for (g in readGroupTag(tag, context)!!) {
-                table.tr("G(${g.id})").tb(g.name)
+                table.tr("G(${g.id})").td(g.name)
             }
             context.print(table.toString())
             return SUCCESS
@@ -196,7 +196,7 @@ class TagCmd(context: CmdContext) : Cmd(context) {
                 table.tr(t)
             }
             for (t in BUILTIN_USER_TAGS) {
-                table.tr(t).tb("*")
+                table.tr(t).td("*")
             }
             context.print(table.toString())
             return SUCCESS
@@ -308,9 +308,9 @@ class TagCmd(context: CmdContext) : Cmd(context) {
         withLockedAccessing(GroupTags) {
             for (i in itemsIn) {
                 if (remFromGroupTag(tag, i.toLowercase()))
-                    table.tr().tb(i).tb("[√] success removed")
+                    table.tr().td(i).td("[√] success removed")
                 else
-                    table.tr().tb(i).tb("[×] tag or item not found")
+                    table.tr().td(i).td("[×] tag or item not found")
             }
         }
         context.print(table.toString())
@@ -333,9 +333,9 @@ class TagCmd(context: CmdContext) : Cmd(context) {
         withLockedAccessing(UserTags) {
             for (i in itemsIn) {
                 if (remFromUserTag(tag, i.toLowercase()))
-                    table.tr().tb(i).tb("[√] success removed")
+                    table.tr().td(i).td("[√] success removed")
                 else
-                    table.tr().tb(i).tb("[×] tag or item not found")
+                    table.tr().td(i).td("[×] tag or item not found")
             }
         }
         context.print(table.toString())

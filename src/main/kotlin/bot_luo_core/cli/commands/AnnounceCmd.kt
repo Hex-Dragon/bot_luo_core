@@ -58,11 +58,11 @@ class AnnounceCmd(context: CmdContext) : Cmd(context) {
         val t = TableBuilder(4)
         t.th("公告预览 ——").br()
 
-        t.tr("置顶：").tb(builder.isPinned)
-        t.tr("弹窗：").tb(builder.showPopup)
-        t.tr("编辑名片：").tb(builder.showEditCard)
-        t.tr("需要确认：").tb(builder.requireConfirmation)
-        t.tr("仅新成员：").tb(builder.sendToNewMember)
+        t.tr("置顶：").td(builder.isPinned)
+        t.tr("弹窗：").td(builder.showPopup)
+        t.tr("编辑名片：").td(builder.showEditCard)
+        t.tr("需要确认：").td(builder.requireConfirmation)
+        t.tr("仅新成员：").td(builder.sendToNewMember)
         t.p("头图：").sp()
         if (image != null) t.p(image)
         t.br()
@@ -90,16 +90,16 @@ class AnnounceCmd(context: CmdContext) : Cmd(context) {
                     connection.disconnect()
                 }
                 contact.publishAnnouncement(content, builder.build())
-                table.tr("[√]").tb("${group.name}(${group.id})")
+                table.tr("[√]").td("${group.name}(${group.id})")
                 suc ++
                 delay((3000L..6000L).random())
             } catch (e: IOException) {
-                table.tr("[×]").tb("${group.name}(${group.id})").tb("网络异常")
+                table.tr("[×]").td("${group.name}(${group.id})").td("网络异常")
             } catch (e: IllegalStateException) {
-                table.tr("[×]").tb("${group.name}(${group.id})").tb("协议异常")
+                table.tr("[×]").td("${group.name}(${group.id})").td("协议异常")
             }
 
-        }.let { if (!it) table.tr("[×]").tb("${group.name}(${group.id})").tb("无权限") } }
+        }.let { if (!it) table.tr("[×]").td("${group.name}(${group.id})").td("无权限") } }
         context.print(table.toString())
         return if (suc > 0) SUCCESS else FATAL
     }

@@ -3,8 +3,9 @@ package bot_luo_core.cli.commands
 import bot_luo_core.cli.*
 import bot_luo_core.cli.annotation.Command
 import bot_luo_core.cli.annotation.Method
-import bot_luo_core.cli.checkers.addon.GroupPermissionChecker
+import bot_luo_core.cli.checkers.addon.GroupOriginalPermissionChecker
 import bot_luo_core.cli.exceptions.CheckerFatal
+import bot_luo_core.data.PmsGroups.readPmsOn
 import bot_luo_core.util.TableBuilder
 import kotlin.reflect.full.createInstance
 
@@ -26,11 +27,11 @@ class ListCmd(context: CmdContext) : Cmd(context) {
             if (map[cmd.cmdName]?.first == true) continue
             try {
                 justCheck.forEach { it.createInstance().check(cmd, context) }
-                map[cmd.cmdName] = group.readCmdData(cmd).working to cmd
+                map[cmd.cmdName] = (group.realPmsGroup.readPmsOn(cmd) >= 0) to cmd
             } catch (ignore: CheckerFatal) {}
         }
         map.values.forEach { (working, cmd) ->
-            table.tr(if (working) "[√]" else "[×]").tb(cmd.display).tb("(${cmd.cmdName})")
+            table.tr(if (working) "[√]" else "[×]").td(cmd.display).td("(${cmd.cmdName})")
         }
 
         context.print(table.toString())
@@ -46,7 +47,7 @@ class ListCmd(context: CmdContext) : Cmd(context) {
         for (cex in CmdCatalog.COMMANDS.distinctBy { it.id }.sortedBy { it.id }) {
             try {
                 justCheck.forEach { it.createInstance().check(cex, context) }
-                table.tr(if (group.readCmdData(cex).working) "[√]" else "[×]").tb(cex.idFixed).tb(cex.subTitle)
+                table.tr(if (group.realPmsGroup.readPmsOn(cex) >= 0) "[√]" else "[×]").td(cex.idFixed).td(cex.subTitle)
             } catch (ignore: CheckerFatal) {}
         }
 
@@ -61,7 +62,7 @@ class ListCmd(context: CmdContext) : Cmd(context) {
         table.th("命令列表 —— 群组 ${group.name}(${group.id})").br()
 
         for (cex in CmdCatalog.COMMANDS.distinctBy { it.id }.sortedBy { it.id }) {
-            table.tr(if (group.readCmdData(cex).working) "[√]" else "[×]").tb(cex.idFixed).tb(cex.subTitle)
+            table.tr(if (group.realPmsGroup.readPmsOn(cex) >= 0) "[√]" else "[×]").td(cex.idFixed).td(cex.subTitle)
         }
 
         context.print(table.toString())
@@ -71,7 +72,7 @@ class ListCmd(context: CmdContext) : Cmd(context) {
 
     companion object{
         val justCheck = arrayOf(
-            GroupPermissionChecker::class
+            GroupOriginalPermissionChecker::class
         )
     }
 }

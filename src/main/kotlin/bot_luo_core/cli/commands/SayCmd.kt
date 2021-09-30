@@ -23,7 +23,7 @@ import net.mamoe.mirai.message.data.MessageChain
 )
 class SayCmd(context: CmdContext) : Cmd(context) {
 
-    @Method(name = "", alias = [], pmsLevel = CmdPermissionLevel.OP )
+    @Method(name = "", alias = [], pmsLevel = CmdPermissionLevel.OP)
     suspend fun say (
         @Argument(name = "消息", handler = GreedyMessageArgHandler::class)
         msg: MessageChain

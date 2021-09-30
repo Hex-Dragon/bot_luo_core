@@ -1,7 +1,7 @@
 package bot_luo_core.util
 
-import com.alibaba.fastjson.JSON
-import com.alibaba.fastjson.TypeReference
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import java.io.File
 import java.lang.ClassCastException
 import kotlin.jvm.Throws
@@ -21,10 +21,10 @@ object JsonWorker {
             file.createNewFile()
             return null
         }
-        val typeRef = object : TypeReference<T>() {}
-        return JSON.parseObject(file.readText(),typeRef)
+        val type = object : TypeToken<T>() {}.type
+        return Gson().fromJson(file.readText(), type)
     }
 
-    fun writeJson (filePath: String, obj: Any) = File(filePath).writeText(JSON.toJSONString(obj, true))
+    fun writeJson (filePath: String, obj: Any) = File(filePath).writeText(Gson().toJson(obj))
 
 }

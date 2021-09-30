@@ -1,7 +1,6 @@
 package bot_luo_core.util
 
-import com.alibaba.fastjson.JSON
-import com.sun.deploy.util.StringUtils
+import com.google.gson.Gson
 import net.mamoe.mirai.message.code.MiraiCode.deserializeMiraiCode
 import net.mamoe.mirai.message.data.MessageChain
 import net.mamoe.mirai.message.data.MessageChainBuilder
@@ -22,7 +21,7 @@ object Text {
         return sb.toString()
     }
 
-    fun String.escapeJson(): String = JSON.toJSONString(this@escapeJson)
+    fun String.escapeJson(): String = Gson().toJson(this@escapeJson)
 
     infix operator fun String.times(n: Int): String {
         if (n<=0) return ""

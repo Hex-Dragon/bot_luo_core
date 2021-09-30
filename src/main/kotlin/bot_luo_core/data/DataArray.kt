@@ -1,18 +1,17 @@
 package bot_luo_core.data
 
-import com.alibaba.fastjson.JSON
-import com.alibaba.fastjson.JSONArray
-import com.alibaba.fastjson.JSONObject
-import com.alibaba.fastjson.TypeReference
-import com.alibaba.fastjson.parser.ParserConfig
-import com.alibaba.fastjson.util.TypeUtils
+import com.github.salomonbrys.kotson.removeAll
+import com.google.gson.Gson
+import com.google.gson.JsonArray
+import com.google.gson.JsonParser
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.sync.Mutex
 import java.io.File
 
 /**
  * # 数据对象类
  *
- * 根对象为一个[JSONObject]
+ * 根对象为一个[JsonArray]
  *
  * 继承[Mutex]
  *
@@ -40,19 +39,19 @@ abstract class DataArray(
     /**
      * 使用[getObj]和[setObj]进行访问
      */
-    val jsonArray: JSONArray
+    final override val element: JsonArray
 
     init {
         val file = File(filePath)
-        jsonArray = if (file.exists())
-            JSON.parseArray (file.readText().ifBlank { "[]" })
+        element = if (file.exists())
+            JsonParser().parse(file.readText().ifBlank { "[]" }) as JsonArray
         else
-            JSONArray()
+            JsonArray()
         if (saveAndUnload) launchSaveJob()
     }
 
     /**
-     * 保存前需将有变动的数据使用[setObj]存入[jsonArray]
+     * 保存前需将有变动的数据使用[setObj]存入[element]
      *
      * 会自动创建不存在的文件和文件夹
      */
@@ -62,7 +61,7 @@ abstract class DataArray(
             if (!file.parentFile.exists()) file.parentFile.mkdirs()
             file.createNewFile()
         }
-        file.writeText(JSON.toJSONString(jsonArray, true))
+        file.writeText(Gson().toJson(element))
         changed = false
     }
 
@@ -72,22 +71,14 @@ abstract class DataArray(
      * 自动更新访问时间
      */
     inline fun <reified T> getObj(index: Int): T? {
-        return if (index in jsonArray.indices) {
-            val tr = object : TypeReference<T>() {}
-            jsonArray.getObject(index, tr)
+        return if (index >= element.size()) {
+            val type = object : TypeToken<T>() {}.type
+            Gson().fromJson(element[index], type)
         } else null
     }
     inline fun <reified T: List<*>> getArray(): T {
-        val tr = object : TypeReference<T>() {}
-        return jsonArray.toJavaObject(tr)
-    }
-
-    fun <T> JSONArray.getObject(index: Int, typeReference: TypeReference<*>?): T {
-        val obj: Any = this[index]
-        @Suppress("UNCHECKED_CAST")
-        return if (typeReference == null) {
-            obj as T
-        } else TypeUtils.cast(obj, typeReference.type, ParserConfig.getGlobalInstance())
+        val type = object : TypeToken<T>() {}.type
+        return Gson().fromJson(element, type)
     }
 
     /**
@@ -101,11 +92,12 @@ abstract class DataArray(
      * @see withLockedAccessing
      */
     fun <T> setObj(index: Int, value: T?) {
-        jsonArray[index] = value
+        element[index] = Gson().toJsonTree(value)
         changed = true
     }
     fun <T: List<*>> setArray(value: T) {
-        jsonArray.fluentClear().fluentAddAll(value)
+        element.removeAll()
+        value.forEach { v -> element.add(Gson().toJsonTree(value)) }
         changed = true
     }
 }

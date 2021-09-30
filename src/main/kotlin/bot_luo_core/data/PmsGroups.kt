@@ -1,36 +1,42 @@
 package bot_luo_core.data
 
+import bot_luo_core.cli.CmdCatalog.COMMANDS
 import bot_luo_core.cli.CmdExecutable
 import bot_luo_core.cli.CmdPermissionLevel
-import bot_luo_core.util.JsonWorker
+import bot_luo_core.util.Logger
+import kotlinx.coroutines.runBlocking
+import org.apache.logging.log4j.Level
 
-object PmsGroups {
+/**
+ * # 权限组数据
+ */
+object PmsGroups: DataObject("data/pms_groups.json", 10000L, false) {
+    override fun unload() {}
 
-    private val pmsGroups = HashMap<String, PmsGroup>()
-    private const val filePath = "data/pms_groups.json"
+    private const val DESC_BLOCK = "屏蔽组，所有命令均为关闭状态"
+    private const val DESC_NONE = "虚空组，所有命令均为叠加态(0)"
+    private const val DESC_NORMAL = "普通组，低级命令对此组开启"
+    private const val DESC_HIGH = "高级组，高级及以下的命令均开启"
+    private const val DESC_OP = "管理组，管理级及以下的命令均开启"
+    private const val DESC_DEBUG = "调试组，所有命令均为开启状态"
 
-    private const val DESC_NONE = "虚空组，无任何命令权限"
-    private const val DESC_NORMAL = "普通组，拥有执行最低级命令的权限"
-    private const val DESC_HIGH = "高级组，拥有执行较高级命令的权限"
-    private const val DESC_OP = "管理组，拥有执行管理命令的权限"
-    private const val DESC_DEBUG = "调试组，拥有执行调试中命令的权限"
+    val BUILTIN_PMS_GROUPS = arrayOf("BLOCKED","NONE","NORMAL","HIGH","OP","DEBUG")
 
     init {
-        pmsGroups["NONE"] = PmsGroup("NONE", DESC_NONE, CmdPermissionLevel.NONE.name, null)
-        pmsGroups["NORMAL"] = PmsGroup("NORMAL", DESC_NORMAL, CmdPermissionLevel.NORMAL.name, null)
-        pmsGroups["HIGH"] = PmsGroup("HIGH", DESC_HIGH, CmdPermissionLevel.HIGH.name, null)
-        pmsGroups["OP"] = PmsGroup("OP", DESC_OP, CmdPermissionLevel.OP.name, null)
-        pmsGroups["DEBUG"] = PmsGroup("DEBUG", DESC_DEBUG, CmdPermissionLevel.DEBUG.name, null)
-        JsonWorker.readJson<ArrayList<PmsGroup>?>(filePath)?.forEach { pmsGroups[it.name] = it }
+        Logger.sysLog(Level.DEBUG, "开始构建内建权限组……")
+        runBlocking { withLockedAccessing(this@PmsGroups) {
+            setObj("BLOCK", PmsGroup("BLOCK", DESC_BLOCK, null, HashMap<String, Int>().apply { putAll(COMMANDS.associate { it.id to -1 })}))
+            setObj("NONE", PmsGroup("NONE", DESC_NONE, null, HashMap<String, Int>().apply { putAll(COMMANDS.associate { it.id to 0 })}))
+            setObj("NORMAL", PmsGroup("NORMAL", DESC_NORMAL, null, HashMap<String, Int>().apply { putAll(COMMANDS.associate { it.id to if (it.pmsLevel <= CmdPermissionLevel.NORMAL) 1 else 0 })}))
+            setObj("HIGH", PmsGroup("HIGH", DESC_HIGH, null, HashMap<String, Int>().apply { putAll(COMMANDS.associate { it.id to if (it.pmsLevel <= CmdPermissionLevel.HIGH) 1 else 0 })}))
+            setObj("OP", PmsGroup("OP", DESC_OP, null, HashMap<String, Int>().apply { putAll(COMMANDS.associate { it.id to if (it.pmsLevel <= CmdPermissionLevel.OP) 1 else 0 })}))
+            setObj("DEBUG", PmsGroup("DEBUG", DESC_DEBUG, null, HashMap<String, Int>().apply { putAll(COMMANDS.associate { it.id to 1 })}))
+        } }
+        Logger.sysLog(Level.DEBUG, "内建权限组构建完毕")
     }
 
-    fun getPmsGroupOrNull(name: String) = pmsGroups[name]
-    fun getPmsGroup(name: String) = pmsGroups[name]?: pmsGroups["NONE"]!!
-
-    fun PmsGroup.readPmsOn(id: String): CmdPermissionLevel {
-        return this.modify?.get(id)?: if (this.base.startsWith("@")) {
-            getPmsGroup(base.substring(1)).readPmsOn(id)
-        } else CmdPermissionLevel(this.base)
+    fun PmsGroup.readPmsOn(id: String): Int {
+        return this.modify?.get(id)?: get(this.inherit?: "BLOCK").readPmsOn(id)
     }
     fun PmsGroup.readPmsOn(cmd: CmdExecutable) = readPmsOn(cmd.id)
 
@@ -39,10 +45,11 @@ object PmsGroups {
      *
      * 使用前应先使用[isCyclingRef]检查是否出现循环引用
      */
-    fun setPmsGroup(pmsGroup: PmsGroup) {
-        pmsGroups[pmsGroup.name] = pmsGroup
-        save()
-    }
+    operator fun set(name: String, value: PmsGroup?) = setObj(name, value)
+
+    operator fun get(name: String): PmsGroup = getObj(name.uppercase())?: getObj("BLOCK")!!
+
+    fun getOrNull(name: String): PmsGroup? = getObj(name.uppercase())
 
     /**
      * 检查是否出现循环引用
@@ -51,16 +58,10 @@ object PmsGroups {
      */
     fun isCyclingRef(pmsGroup: PmsGroup): Boolean {
         var p = pmsGroup
-        while (p.base.startsWith('@')) {
-            val b = p.base.substring(1)
-            if (b == pmsGroup.name) return true
-            else p = getPmsGroup(b)
+        while (p.inherit != null) {
+            if (p.inherit == pmsGroup.name) return true
+            else p = get(p.inherit!!)
         }
         return false
     }
-
-    private fun save() {
-        JsonWorker.writeJson(filePath, pmsGroups.values)
-    }
-
 }

@@ -4,15 +4,17 @@ import bot_luo_core.cli.*
 import bot_luo_core.cli.annotation.Argument
 import bot_luo_core.cli.annotation.Command
 import bot_luo_core.cli.annotation.Method
-import bot_luo_core.cli.checkers.GroupCmdWorkingChecker
+import bot_luo_core.cli.checkers.addon.UserOriginalPermissionChecker
 import bot_luo_core.cli.exceptions.SyntaxError
 import bot_luo_core.cli.handlers.GroupArgHandler
 import bot_luo_core.cli.handlers.JsonPathArgHandler
 import bot_luo_core.cli.handlers.UserArgHandler
 import bot_luo_core.data.*
 import bot_luo_core.util.TableBuilder
-import com.alibaba.fastjson.JSONArray
-import com.alibaba.fastjson.JSONObject
+import bot_luo_core.util.set
+import com.github.salomonbrys.kotson.add
+import com.github.salomonbrys.kotson.keys
+import com.google.gson.*
 import kotlin.jvm.Throws
 
 @Command(
@@ -28,12 +30,12 @@ class DataCmd(context: CmdContext) : Cmd(context) {
 
     /*  ========================  get  ========================  */
 
-    fun get(dataObject: DataObject, objName: String, objId: String = "", path: ArrayList<String> = ArrayList()): CmdReceipt {
+    fun get(data: Data, objName: String, objId: String = "", path: ArrayList<String> = ArrayList()): CmdReceipt {
         val table = TableBuilder(4)
         table.th("${objName}数据 —— $objId")
         table.p("/"+path.joinToString("/")).br().br()
         try {
-            readByPath(dataObject.jsonObj, path, table)
+            readByPath(data.element, path, table)
             context.print(table.toString())
             return SUCCESS
         } catch (e: NullPointerException) {
@@ -50,7 +52,7 @@ class DataCmd(context: CmdContext) : Cmd(context) {
         table.th("${arrayName}数据 —— $arrayId")
         table.p("/"+path.joinToString("/")).br().br()
         try {
-            readByPath(dataArray.jsonArray, path, table)
+            readByPath(dataArray.element, path, table)
             context.print(table.toString())
             return SUCCESS
         } catch (e: NullPointerException) {
@@ -62,7 +64,7 @@ class DataCmd(context: CmdContext) : Cmd(context) {
         return FATAL
     }
 
-    @Method(name = "", alias = ["get-group","gg","g"], pmsLevel = CmdPermissionLevel.OP, ignoreCheckers = [GroupCmdWorkingChecker::class], title = "获取群组数据")
+    @Method(name = "", alias = ["get-group","gg","g"], pmsLevel = CmdPermissionLevel.OP, addonCheckers = [UserOriginalPermissionChecker::class], title = "获取群组数据")
     fun getGroup (
         @Argument(name = "群组", handler = GroupArgHandler::class)
         group: Group,
@@ -70,7 +72,7 @@ class DataCmd(context: CmdContext) : Cmd(context) {
         pathIn: ArrayList<String>?
     ): CmdReceipt = get(group, "群组", "${group.name}(${group.id})", pathIn?: ArrayList())
 
-    @Method(name = "get-user", alias = ["gu","u"], pmsLevel = CmdPermissionLevel.OP, ignoreCheckers = [GroupCmdWorkingChecker::class], title = "获取用户数据")
+    @Method(name = "get-user", alias = ["gu","u"], pmsLevel = CmdPermissionLevel.OP, addonCheckers = [UserOriginalPermissionChecker::class], title = "获取用户数据")
     fun getUser (
         @Argument(name = "用户", handler = UserArgHandler::class)
         user: User,
@@ -86,8 +88,8 @@ class DataCmd(context: CmdContext) : Cmd(context) {
         table.p("/"+path.joinToString("/")).br().br()
         try { withLockedAccessing(dataObject) {
             dataObject.markDirty()
-            val (old, new) = writeByPathTyped(dataObject.jsonObj, path, defaultCast(value))
-            table.tr(formatValue(old)).tb("->").tb(formatValue(new))
+            val (old, new) = writeByPathTyped(dataObject.element, path, defaultCast(value))
+            table.tr(formatValue(old)).td("->").td(formatValue(new))
             context.print(table.toString())
             return SUCCESS
         } } catch (e: NullPointerException) {
@@ -105,8 +107,8 @@ class DataCmd(context: CmdContext) : Cmd(context) {
         table.p("/"+path.joinToString("/")).br().br()
         try { withLockedAccessing(dataArray) {
             dataArray.markDirty()
-            val (old, new) = writeByPathTyped(dataArray.jsonArray, path, defaultCast(value))
-            table.tr(formatValue(old)).tb("->").tb(formatValue(new))
+            val (old, new) = writeByPathTyped(dataArray.element, path, defaultCast(value))
+            table.tr(formatValue(old)).td("->").td(formatValue(new))
             context.print(table.toString())
             return SUCCESS
         } } catch (e: NullPointerException) {
@@ -124,8 +126,8 @@ class DataCmd(context: CmdContext) : Cmd(context) {
         table.p("/"+path.joinToString("/")).br().br()
         try { withLockedAccessing(dataObject) {
             dataObject.markDirty()
-            val (old, new) = writeByPathTyped(dataObject.jsonObj, path, value castTo type)
-            table.tr(formatValue(old)).tb("->").tb(formatValue(new))
+            val (old, new) = writeByPathTyped(dataObject.element, path, value castTo type)
+            table.tr(formatValue(old)).td("->").td(formatValue(new))
             context.print(table.toString())
             return SUCCESS
         } } catch (e: NullPointerException) {
@@ -143,8 +145,8 @@ class DataCmd(context: CmdContext) : Cmd(context) {
         table.p("/"+path.joinToString("/")).br().br()
         try { withLockedAccessing(dataArray) {
             dataArray.markDirty()
-            val (old, new) = writeByPathTyped(dataArray.jsonArray, path, value castTo type)
-            table.tr(formatValue(old)).tb("->").tb(formatValue(new))
+            val (old, new) = writeByPathTyped(dataArray.element, path, value castTo type)
+            table.tr(formatValue(old)).td("->").td(formatValue(new))
             context.print(table.toString())
             return SUCCESS
         } } catch (e: NullPointerException) {
@@ -156,7 +158,7 @@ class DataCmd(context: CmdContext) : Cmd(context) {
         return FATAL
     }
 
-    @Method(name = "set-group", alias = ["sg"], pmsLevel = CmdPermissionLevel.DEBUG, ignoreCheckers = [GroupCmdWorkingChecker::class], order = 0, title = "修改群组数据")
+    @Method(name = "set-group", alias = ["sg"], pmsLevel = CmdPermissionLevel.DEBUG, addonCheckers = [UserOriginalPermissionChecker::class], order = 0, title = "修改群组数据")
     suspend fun setGroup (
         @Argument(name = "群组", handler = GroupArgHandler::class)
         group: Group,
@@ -166,7 +168,7 @@ class DataCmd(context: CmdContext) : Cmd(context) {
         value: String
     ): CmdReceipt = set(group, "群组", "${group.name}(${group.id})", path, value)
 
-    @Method(name = "set-user", alias = ["su"], pmsLevel = CmdPermissionLevel.DEBUG, ignoreCheckers = [GroupCmdWorkingChecker::class], order = 0, title = "修改用户数据")
+    @Method(name = "set-user", alias = ["su"], pmsLevel = CmdPermissionLevel.DEBUG, addonCheckers = [UserOriginalPermissionChecker::class], order = 0, title = "修改用户数据")
     suspend fun setUser (
         @Argument(name = "用户", handler = UserArgHandler::class)
         user: User,
@@ -176,7 +178,7 @@ class DataCmd(context: CmdContext) : Cmd(context) {
         value: String
     ): CmdReceipt = set(user, "用户", "${user.name}(${user.id})", path, value)
 
-    @Method(name = "set-group", alias = ["sg"], pmsLevel = CmdPermissionLevel.DEBUG, ignoreCheckers = [GroupCmdWorkingChecker::class], order = 1, title = "修改群组数据")
+    @Method(name = "set-group", alias = ["sg"], pmsLevel = CmdPermissionLevel.DEBUG, addonCheckers = [UserOriginalPermissionChecker::class], order = 1, title = "修改群组数据")
     suspend fun setGroup (
         @Argument(name = "群组", handler = GroupArgHandler::class)
         group: Group,
@@ -191,7 +193,7 @@ class DataCmd(context: CmdContext) : Cmd(context) {
         type: String
     ): CmdReceipt  = set(group, "群组", "${group.name}(${group.id})", path, value, type)
 
-    @Method(name = "set-user", alias = ["su"], pmsLevel = CmdPermissionLevel.DEBUG, ignoreCheckers = [GroupCmdWorkingChecker::class], order = 1, title = "修改用户数据")
+    @Method(name = "set-user", alias = ["su"], pmsLevel = CmdPermissionLevel.DEBUG, addonCheckers = [UserOriginalPermissionChecker::class], order = 1, title = "修改用户数据")
     suspend fun setUser (
         @Argument(name = "用户", handler = UserArgHandler::class)
         user: User,
@@ -216,8 +218,8 @@ class DataCmd(context: CmdContext) : Cmd(context) {
                 "str","string","charsequence" -> this
                 "bool","boolean" -> this.toBoolean()
                 "null" -> if (this == "null") return null else throw SyntaxError(-1, "无法将“$this”转换为Null")
-                "array","list" -> if (this == "[]") return JSONArray() else throw SyntaxError(-1, "无法将“$this”转换为Array")
-                "object","obj" -> if (this == "{}") return JSONObject() else throw SyntaxError(-1, "无法将“$this”转换为Object")
+                "array","list" -> if (this == "[]") return JsonArray() else throw SyntaxError(-1, "无法将“$this”转换为Array")
+                "object","obj" -> if (this == "{}") return JsonObject() else throw SyntaxError(-1, "无法将“$this”转换为Object")
                 else -> throw SyntaxError(-1, "未知的类型“$type”")
             }
         }
@@ -227,56 +229,54 @@ class DataCmd(context: CmdContext) : Cmd(context) {
                 input.toBigDecimalOrNull()?:
                 input.toBooleanStrictOrNull()?:
                 when (input) {
-                    "{}" -> JSONObject()
-                    "[]" -> JSONArray()
+                    "{}" -> JsonObject()
+                    "[]" -> JsonArray()
                     "null" -> null
                     else -> input
                 }
         }
 
-        private fun objectGet(obj: JSONObject, table: TableBuilder) {
-            for ((k, v) in obj.innerMap) {
-                table.tr("$k:").tb(formatValue(v))
+        private fun objectGet(obj: JsonObject, table: TableBuilder) {
+            for ((k, v) in obj.entrySet()) {
+                table.tr("$k:").td(formatValue(v))
             }
         }
 
-        private fun arrayGet(array: JSONArray, table: TableBuilder) {
-            for (i in array.indices) {
-                table.tr("[$i]").tb(formatValue(array[i]))
+        private fun arrayGet(array: JsonArray, table: TableBuilder) {
+            for (i in 0 until array.size()) {
+                table.tr("[$i]").td(formatValue(array[i]))
             }
         }
 
-        private fun formatValue(value: Any?): String {
+        private fun formatValue(value: JsonElement): String {
             return when (value) {
-                is Boolean -> value.toString()
-                is Number -> value.toString()
-                is String -> "\"$value\""
-                is Map<*, *> -> "<object: ${value.size}>"
-                is List<*> -> "<array: ${value.size}>"
-                null -> "null"
+                is JsonPrimitive -> value.asString
+                is JsonObject -> "<object: ${value.size()}>"
+                is JsonArray -> "<array: ${value.size()}>"
+                is JsonNull -> "null"
                 else -> "<${value::class.simpleName}>"
             }
         }
 
         @Throws(IndexOutOfBoundsException::class, NullPointerException::class)
-        private fun readByPath(obj: Any?, path: ArrayList<String> = ArrayList(), table: TableBuilder) {
+        private fun readByPath(obj: JsonElement, path: ArrayList<String> = ArrayList(), table: TableBuilder) {
             if (path.isEmpty()) {
                 when (obj) {
-                    is JSONObject -> objectGet(obj, table)
-                    is JSONArray -> arrayGet(obj, table)
-                    null -> throw NullPointerException()
+                    is JsonObject -> objectGet(obj, table)
+                    is JsonArray -> arrayGet(obj, table)
+                    is JsonNull -> throw NullPointerException()
                     else -> table.tr(formatValue(obj))
                 }
             } else {
                 when (obj) {
-                    is JSONObject -> {
+                    is JsonObject -> {
                         val key = path[0]
-                        if (!obj.containsKey(key)) throw NullPointerException()
+                        if (key !in obj.keys()) throw NullPointerException()
                         readByPath(obj[key], path.apply { removeAt(0) }, table)
                     }
-                    is JSONArray -> {
+                    is JsonArray -> {
                         val index = path[0].toIntOrNull() ?: throw NullPointerException()
-                        if (index !in obj.indices) throw IndexOutOfBoundsException()
+                        if (index !in 0 until obj.size()) throw IndexOutOfBoundsException()
                         readByPath(obj[index], path.apply { removeAt(0) }, table)
                     }
                     else -> throw NullPointerException()
@@ -292,13 +292,12 @@ class DataCmd(context: CmdContext) : Cmd(context) {
          * 返回 [Pair] (旧数据,新数据)
          */
         @Throws(NullPointerException::class)
-        private fun writeByPathTyped(obj: Any?, path: ArrayList<String>, value: Any?): Pair<Any?,Any?> {
+        private fun writeByPathTyped(obj: JsonElement, path: ArrayList<String>, value: Any?): Pair<JsonElement,JsonElement> {
             when (path.size) {
                 0 -> throw NullPointerException()
                 1 -> {
                     when (obj) {
-                        is MutableMap<*, *> -> {
-                            obj as MutableMap<String, Any?>
+                        is JsonObject -> {
                             val oldValue = obj[path[0]]
                             if (value == null)
                                 obj.remove(path[0])
@@ -306,37 +305,36 @@ class DataCmd(context: CmdContext) : Cmd(context) {
                                 obj[path[0]] = value
                             return oldValue to obj[path[0]]
                         }
-                        is MutableList<*> -> {
-                            obj as MutableList<Any>
+                        is JsonArray -> {
                             val index = path[0].toIntOrNull()?: throw NullPointerException()
-                            if (index !in 0..obj.size) throw IndexOutOfBoundsException()
-                            val oldValue: Any?
-                            if (index == obj.size) {
-                                oldValue = null
+                            if (index !in 0..obj.size()) throw IndexOutOfBoundsException()
+                            val oldValue: JsonElement
+                            if (index == obj.size()) {
+                                oldValue = JsonNull.INSTANCE
                                 if (value != null)
                                     obj.add(value)
                             } else {
                                 oldValue = obj[index]
                                 if (value == null)
-                                    obj.removeAt(index)
+                                    obj.remove(index)
                                 else
                                     obj[index] = value
                             }
-                            return oldValue to if (value == null) null else obj[index]
+                            return oldValue to if (value == null) JsonNull.INSTANCE else obj[index]
                         }
                         else -> throw NullPointerException()
                     }
                 }
                 else -> {
                     return when (obj) {
-                        is JSONObject -> {
+                        is JsonObject -> {
                             val key = path[0]
-                            if (!obj.containsKey(key)) throw NullPointerException()
+                            if (key !in obj.keys()) throw NullPointerException()
                             writeByPathTyped(obj[key], path.apply { removeAt(0) }, value)
                         }
-                        is JSONArray -> {
+                        is JsonArray -> {
                             val index = path[0].toIntOrNull() ?: throw NullPointerException()
-                            if (index !in obj.indices) throw IndexOutOfBoundsException()
+                            if (index !in 0 until obj.size()) throw IndexOutOfBoundsException()
                             writeByPathTyped(obj[index], path.apply { removeAt(0) }, value)
                         }
                         else -> throw NullPointerException()

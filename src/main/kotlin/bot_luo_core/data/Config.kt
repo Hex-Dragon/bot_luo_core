@@ -9,12 +9,12 @@ object Config {
     /**
      * 回复-确认
      */
-    val REPL_YES = arrayOf("y","ok","yes","好","是","好的","是的")
+    val REPL_YES = arrayOf("y","ok","yes","true","好","是","对","行","中","成","好的","是的","对的","没错","确认")
 
     /**
      * 回复-否认
      */
-    val REPL_NO = arrayOf("n","no","nop","不","否","不是","不要")
+    val REPL_NO = arrayOf("n","no","nope","false","不","否","孬","不是","不要","爪巴","不对","不好","不行","否认")
 
     /**
      * 输出消息最大长度

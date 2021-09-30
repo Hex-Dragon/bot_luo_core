@@ -4,9 +4,7 @@ import bot_luo_core.cli.*
 import bot_luo_core.cli.annotation.Argument
 import bot_luo_core.cli.annotation.Command
 import bot_luo_core.cli.annotation.Method
-import bot_luo_core.cli.checkers.GroupCmdWorkingChecker
-import bot_luo_core.cli.checkers.addon.GroupPermissionChecker
-import bot_luo_core.cli.checkers.UserCmdWorkingChecker
+import bot_luo_core.cli.checkers.addon.GroupOriginalPermissionChecker
 import bot_luo_core.cli.exceptions.CheckerFatal
 import bot_luo_core.cli.handlers.CmdExArgHandler
 import bot_luo_core.util.TableBuilder
@@ -73,9 +71,7 @@ class HelpCmd(context: CmdContext) : Cmd(context) {
     companion object {
 
         val justCheck = arrayOf(
-            GroupPermissionChecker::class,
-            GroupCmdWorkingChecker::class,
-            UserCmdWorkingChecker::class
+            GroupOriginalPermissionChecker::class
         )
 
         fun cmdHelpGen(cmds: List<CmdExecutable>): String? {
@@ -95,17 +91,17 @@ class HelpCmd(context: CmdContext) : Cmd(context) {
                 table.p(v[0].usage).br().br()
                 map.forEach { (_ ,value ) ->
                     table.prettyLines(value[0].subTitle, value) { item, builder ->
-                        builder.tb(item.headPara).tb(item.getParasFormat())
-                    }.tb(value[0].subUsage)
+                        builder.td(item.headPara).td(item.getParasFormat())
+                    }.td(value[0].subUsage)
                 }
                 table.th().prettyLines("示例：",spl) { item, builder ->
-                    builder.tb(item)
+                    builder.td(item)
                 }
                 table.th().prettyLines("说明：",v[0].caption.toList()) { item, builder ->
-                    builder.tb(item)
+                    builder.td(item)
                 }
                 table.th().prettyLines("注意：",v[0].notice.toList()) { item, builder ->
-                    builder.tb(item)
+                    builder.td(item)
                 }
             }
             return table.toString()

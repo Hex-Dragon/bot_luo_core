@@ -74,14 +74,14 @@ object Tag {
         table.tr()
         line.forEachIndexed { index, l ->
             if (index < line.lastIndex) {
-                if (l > 0) table.tb("│")
-                else table.tb("  ")
+                if (l > 0) table.td("│")
+                else table.td("  ")
             } else {
-                if (l > 0) table.tb("├")
-                else table.tb("└")
+                if (l > 0) table.td("├")
+                else table.td("└")
             }
         }
-        table.tb(tag)
+        table.td(tag)
         val items = tagGetter(tag)
         items.sortedWith { o1, o2 ->
             var r = 0

@@ -106,6 +106,7 @@ object BotLuo {
         GlobalEventChannel.subscribeAlways<MessageEvent>(priority = EventPriority.NORMAL) {
             if (this.sender is AnonymousMember) return@subscribeAlways
             if (this is MessageSyncEvent) return@subscribeAlways
+//            if (this !is GroupAwareMessageEvent || this.group.id != 565056329L) return@subscribeAlways
             if (this is GroupAwareMessageEvent && !bot.isMainBotOf(this.group.id)) return@subscribeAlways
             CmdHandler.call(this)
             if (this.isIntercepted) Logger.log(this, Level.INFO) else Logger.log(this, Level.DEBUG)

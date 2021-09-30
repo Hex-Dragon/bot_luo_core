@@ -18,7 +18,10 @@ import bot_luo_core.util.TableBuilder
     name = "permission",
     display = "权限",
     alias = ["pms"],
-    usage = "查看或设置权限"
+    usage = "查看或设置权限",
+    caption = [
+        "使用pg命令查看或编辑权限组"
+    ]
 )
 class PermissionCmd(context: CmdContext) : Cmd(context) {
 
@@ -31,8 +34,12 @@ class PermissionCmd(context: CmdContext) : Cmd(context) {
     ): CmdReceipt {
         val group = groupIn?: context.group
         val table = TableBuilder(4)
-        table.th("权限组 —— 群组 ${group.name}(${group.id})").br()
-        table.tr(group.pmsGroup.name)
+        table.th("权限 —— 群组 ${group.name}(${group.id})").br()
+        table.tr("权限组：").td(group.realPmsGroup.name)
+        table.tr("描述：").td(group.realPmsGroup.description)
+        table.prettyLines("修改项：", group.pmsModify.entries) { item, builder ->
+            builder.td("${item.key}:").td(item.value)
+        }
         context.print(table.toString())
         return SUCCESS
     }
@@ -44,8 +51,12 @@ class PermissionCmd(context: CmdContext) : Cmd(context) {
     ): CmdReceipt {
         val user = userIn?: context.user
         val table = TableBuilder(4)
-        table.th("权限组 —— 用户 ${user.name}(${user.id})").br()
-        table.tr(user.pmsGroup.name)
+        table.th("权限 —— 用户 ${user.name}(${user.id})").br()
+        table.tr("权限组：").td(user.realPmsGroup.name)
+        table.tr("描述：").td(user.realPmsGroup.description)
+        table.prettyLines("修改项：", user.pmsModify.entries) { item, builder ->
+            builder.td("${item.key}:").td(item.value)
+        }
         context.print(table.toString())
         return SUCCESS
     }
@@ -63,7 +74,7 @@ class PermissionCmd(context: CmdContext) : Cmd(context) {
         val table = TableBuilder(4)
         table.th("更改权限组 —— 群组").br()
         for (group in groups) { withLockedAccessing(group) {
-            table.tr("${group.name}(${group.id})").tb(group.pmsGroup.name).tb("->").tb(pms.name)
+            table.tr("${group.name}(${group.id})").td(group.pmsGroup.name).td("->").td(pms.name)
             group.pmsGroup = pms
         } }
         context.print(table.toString())
@@ -81,7 +92,7 @@ class PermissionCmd(context: CmdContext) : Cmd(context) {
         val table = TableBuilder(4)
         table.th("更改权限组 —— 用户").br()
         for (user in users) { withLockedAccessing(user) {
-            table.tr("${user.name}(${user.id})").tb(user.pmsGroup.name).tb("->").tb(pms.name)
+            table.tr("${user.name}(${user.id})").td(user.pmsGroup.name).td("->").td(pms.name)
             user.pmsGroup = pms
         } }
         context.print(table.toString())

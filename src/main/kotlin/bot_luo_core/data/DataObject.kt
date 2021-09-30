@@ -1,16 +1,20 @@
 package bot_luo_core.data
 
-import com.alibaba.fastjson.JSON
-import com.alibaba.fastjson.JSONObject
-import com.alibaba.fastjson.JSONPObject
-import com.alibaba.fastjson.TypeReference
+import bot_luo_core.util.set
+import com.github.salomonbrys.kotson.put
+import com.github.salomonbrys.kotson.putAll
+import com.github.salomonbrys.kotson.removeAll
+import com.google.gson.Gson
+import com.google.gson.JsonObject
+import com.google.gson.JsonParser
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.sync.Mutex
 import java.io.File
 
 /**
  * # 数据对象类
  *
- * 根对象为一个[JSONObject]
+ * 根对象为一个[JsonObject]
  *
  * 继承[Mutex]
  *
@@ -38,19 +42,19 @@ abstract class DataObject(
     /**
      * 使用[getObj]和[setObj]进行访问
      */
-    val jsonObj: JSONObject
+    final override val element: JsonObject
 
     init {
         val file = File(filePath)
-        jsonObj = if (file.exists())
-            JSON.parseObject(file.readText().ifBlank { "{}" })
+        element = if (file.exists())
+            JsonParser().parse(file.readText().ifBlank { "{}" }) as JsonObject
         else
-            JSONObject()
+            JsonObject()
         if (saveAndUnload) launchSaveJob()
     }
 
     /**
-     * 保存前需将有变动的数据使用[setObj]存入[jsonObj]
+     * 保存前需将有变动的数据使用[setObj]存入[element]
      *
      * 会自动创建不存在的文件和文件夹
      */
@@ -60,7 +64,7 @@ abstract class DataObject(
             if (!file.parentFile.exists()) file.parentFile.mkdirs()
             file.createNewFile()
         }
-        file.writeText(JSON.toJSONString(jsonObj, true))
+        file.writeText(Gson().toJson(element))
         changed = false
     }
 
@@ -70,14 +74,14 @@ abstract class DataObject(
      * 自动更新访问时间
      */
     inline fun <reified T> getObj(key: String): T? {
-        return if (jsonObj.containsKey(key)) {
-            val tr = object : TypeReference<T>() {}
-            jsonObj.getObject(key, tr)
+        return if (element.has(key)) {
+            val type = object : TypeToken<T>() {}.type
+            Gson().fromJson(element[key], type)
         } else null
     }
     inline fun <reified T: Map<*, *>> getObj(): T {
-        val tr = object : TypeReference<T>() {}
-        return jsonObj.toJavaObject(tr)
+        val type = object : TypeToken<T>() {}.type
+        return Gson().fromJson(element, type)
     }
 
     /**
@@ -91,11 +95,12 @@ abstract class DataObject(
      * @see withLockedAccessing
      */
     fun <T> setObj(key: String, value: T?) {
-        jsonObj[key] = value
+        element[key] = value
         changed = true
     }
-    fun <T: Map<out String, *>> setObj(value: T?) {
-        jsonObj.fluentClear().fluentPutAll(value)
+    fun <T: Map<String, *>> setObj(value: T?) {
+        element.removeAll()
+        value?.forEach{ (k,v) -> element.put(k to Gson().toJsonTree(v)) }
         changed = true
     }
 }

@@ -2,6 +2,9 @@ package bot_luo_core.cli
 
 import java.util.*
 
+/**
+ * # 命令权限等级
+ */
 enum class CmdPermissionLevel {
     NONE,
     NORMAL,

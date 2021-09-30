@@ -1,5 +1,6 @@
 package bot_luo_core.data
 
+import com.google.gson.JsonElement
 import kotlinx.atomicfu.AtomicInt
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.*
@@ -33,6 +34,8 @@ abstract class Data(
 ) : Mutex by Mutex() {
 
     private var saveJob: Job? = null
+
+    abstract val element: JsonElement
 
     /**
      * 访问数量

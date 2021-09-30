@@ -20,6 +20,6 @@ class PmsGroupArgHandler: ArgHandler<PmsGroup> {
         context: CmdContext?
     ): PmsGroup {
         val str = reader.readString()
-        return PmsGroups.getPmsGroupOrNull(str)?: throw HandlerFatal(str, argName, pos, type)
+        return PmsGroups.getOrNull(str)?: throw HandlerFatal(str, argName, pos, type)
     }
 }

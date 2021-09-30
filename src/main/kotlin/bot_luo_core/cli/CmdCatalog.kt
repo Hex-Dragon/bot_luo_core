@@ -3,7 +3,9 @@ package bot_luo_core.cli
 import bot_luo_core.cli.annotation.Method
 import bot_luo_core.cli.commands.*
 import bot_luo_core.cli.exceptions.CliInternalError
+import bot_luo_core.util.Logger
 import bot_luo_core.util.Text.escapeRegex
+import org.apache.logging.log4j.Level
 import java.lang.IllegalArgumentException
 import java.util.*
 import kotlin.collections.ArrayList
@@ -22,6 +24,7 @@ object CmdCatalog {
 
     init {
         //注册内建命令
+        Logger.sysLog(Level.DEBUG, "开始注册内建命令……")
         registerCmd(
             AnnounceCmd::class,
             ControlCmd::class,
@@ -32,11 +35,13 @@ object CmdCatalog {
             HelpCmd::class,
             ListCmd::class,
             PermissionCmd::class,
+            PermissionGroupCmd::class,
             SayCmd::class,
             StatCmd::class,
             SwitchCmd::class,
             TagCmd::class
         )
+        Logger.sysLog(Level.DEBUG, "内建命令注册完毕")
     }
 
     /**

@@ -43,7 +43,7 @@ class TableBuilder (
         x = 0
         table.add(ArrayList())
         y++
-        if (str != null) tb(str)
+        if (str != null) td(str)
         return this
     }
     fun tr(any: Any?): TableBuilder = tr(any?.toString())
@@ -55,14 +55,14 @@ class TableBuilder (
      *
      * @param str 文本，默认为""
      */
-    fun tb(str: String = ""): TableBuilder {
+    fun td(str: String = ""): TableBuilder {
         table[y].add(str)
         while (len.size <= x) len.add(0)
         if (len[x] < str.length) len[x] = str.length
         x++
         return this
     }
-    fun tb(any: Any?) = tb(any?.toString()?:"")
+    fun td(any: Any?) = td(any?.toString()?:"")
 
     /**
      * 附加到独立的一行，不影响当前表格布局

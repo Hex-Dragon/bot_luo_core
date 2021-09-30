@@ -47,8 +47,23 @@ class User internal constructor (
     fun getAt() = At(id)
 
     var pmsGroup: PmsGroup
-        get() = PmsGroups.getPmsGroup(getObj("pmsGroup")?: "NONE")
+        get() = PmsGroups[(getObj("pmsGroup")?: "NONE")]
         set(value) = setObj("pmsGroup", value.name)
+
+    var pmsModify: HashMap<String, Int>
+        get() = getObj("pmsModify")?: HashMap()
+        set(value) = setObj("pmsModify", value)
+
+    val realPmsGroup: PmsGroup
+        get() {
+            return if (pmsModify.isEmpty()) pmsGroup
+            else PmsGroup(
+                name = pmsGroup.name+"*",
+                description = pmsGroup.description+"(modified)",
+                inherit = pmsGroup.name,
+                modify = pmsModify
+            )
+        }
 
     inline fun withServeBot(action: (contact: User)->Unit): Boolean {
         if (virtual) return false

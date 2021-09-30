@@ -7,10 +7,12 @@ import bot_luo_core.cli.CmdPermissionLevel
 import bot_luo_core.cli.annotation.Argument
 import bot_luo_core.cli.annotation.Command
 import bot_luo_core.cli.annotation.Method
-import bot_luo_core.cli.checkers.GroupCmdWorkingChecker
+import bot_luo_core.cli.checkers.PermissionChecker
+import bot_luo_core.cli.checkers.addon.UserOriginalPermissionChecker
 import bot_luo_core.cli.handlers.CmdIdArgHandler
 import bot_luo_core.cli.handlers.GroupArgHandler
 import bot_luo_core.data.Group
+import bot_luo_core.data.withLockedAccessing
 import bot_luo_core.util.TableBuilder
 
 @Command(
@@ -23,7 +25,7 @@ class SwitchCmd(context: CmdContext) : Cmd(context) {
 
     /*  ========================  show  ========================  */
 
-    @Method(name = "",alias = ["show"],pmsLevel = CmdPermissionLevel.OP,order = 0,ignoreCheckers = [GroupCmdWorkingChecker::class],
+    @Method(name = "", alias = ["show"], pmsLevel = CmdPermissionLevel.OP, order = 0, ignoreCheckers = [PermissionChecker::class], addonCheckers = [UserOriginalPermissionChecker::class],
     title = "查看", usage = "获取命令是否开启")
     fun show(
         @Argument(name = "命令", handler = CmdIdArgHandler::class, multiValued = true)
@@ -35,14 +37,14 @@ class SwitchCmd(context: CmdContext) : Cmd(context) {
         val table = TableBuilder(4)
         table.th("电闸 —— 群组(${group.id})").br()
         for (id in ids) {
-            val data = group.readCmdData(id)
-            table.tr(id).tb(":").tb(if (data.working) "ON" else "OFF")
+            val i = group.pmsModify[id]?: 0
+            table.tr(id).td(":").td(if (i >= 0) "ON" else "OFF")
         }
         context.println(table.toString())
         return SUCCESS
     }
 
-    @Method(name = "",alias = ["show"],pmsLevel = CmdPermissionLevel.OP,order = 0,ignoreCheckers = [GroupCmdWorkingChecker::class])
+    @Method(name = "", alias = ["show"], pmsLevel = CmdPermissionLevel.OP, order = 0, ignoreCheckers = [PermissionChecker::class], addonCheckers = [UserOriginalPermissionChecker::class])
     fun show(
         @Argument(name = "群组", handler = GroupArgHandler::class)
         groupIn: Group,
@@ -52,8 +54,8 @@ class SwitchCmd(context: CmdContext) : Cmd(context) {
 
     /*  ========================  on  ========================  */
 
-    @Method(name = "on",pmsLevel = CmdPermissionLevel.OP,order = 0,ignoreCheckers = [GroupCmdWorkingChecker::class])
-    fun on(
+    @Method(name = "on", pmsLevel = CmdPermissionLevel.OP, order = 0, ignoreCheckers = [PermissionChecker::class], addonCheckers = [UserOriginalPermissionChecker::class])
+    suspend fun on(
         @Argument(name = "命令", handler = CmdIdArgHandler::class, multiValued = true)
         ids: ArrayList<String>,
         @Argument(name = "群组", handler = GroupArgHandler::class, required = false)
@@ -62,18 +64,19 @@ class SwitchCmd(context: CmdContext) : Cmd(context) {
         val group = groupIn?: context.group
         val table = TableBuilder(4)
         table.th("电闸开启 —— 群组(${group.id})").br()
-        for (id in ids) {
-            val data = group.readCmdData(id)
-            table.tr(id).tb(":").tb(if (data.working) "ON" else "OFF").tb("->").tb("ON")
-            data.working = true
-            group.writeCmdData(id, data)
+        withLockedAccessing(group) {
+            for (id in ids) {
+                val i = group.pmsModify[id] ?: 0
+                table.tr(id).td(":").td(if (i >= 0) "ON" else "OFF").td("->").td("ON")
+                if (i == -1) group.pmsModify = group.pmsModify.apply { remove(id) }
+            }
         }
         context.println(table.toString())
         return SUCCESS
     }
 
-    @Method(name = "on",pmsLevel = CmdPermissionLevel.OP,order = 0,ignoreCheckers = [GroupCmdWorkingChecker::class])
-    fun on(
+    @Method(name = "on", pmsLevel = CmdPermissionLevel.OP, order = 0, ignoreCheckers = [PermissionChecker::class], addonCheckers = [UserOriginalPermissionChecker::class])
+    suspend fun on(
         @Argument(name = "群组", handler = GroupArgHandler::class)
         groupIn: Group,
         @Argument(name = "命令", handler = CmdIdArgHandler::class, multiValued = true)
@@ -82,8 +85,8 @@ class SwitchCmd(context: CmdContext) : Cmd(context) {
 
     /*  ========================  off  ========================  */
 
-    @Method(name = "off",pmsLevel = CmdPermissionLevel.OP,order = 0,ignoreCheckers = [GroupCmdWorkingChecker::class])
-    fun off(
+    @Method(name = "off", pmsLevel = CmdPermissionLevel.OP, order = 0, ignoreCheckers = [PermissionChecker::class], addonCheckers = [UserOriginalPermissionChecker::class])
+    suspend fun off(
         @Argument(name = "命令", handler = CmdIdArgHandler::class, multiValued = true)
         ids: ArrayList<String>,
         @Argument(name = "群组", handler = GroupArgHandler::class, required = false)
@@ -92,18 +95,19 @@ class SwitchCmd(context: CmdContext) : Cmd(context) {
         val group = groupIn?: context.group
         val table = TableBuilder(4)
         table.th("电闸关闭 —— 群组(${group.id})").br()
-        for (id in ids) {
-            val data = group.readCmdData(id)
-            table.tr(id).tb(":").tb(if (data.working) "ON" else "OFF").tb("->").tb("OFF")
-            data.working = false
-            group.writeCmdData(id, data)
+        withLockedAccessing(group) {
+            for (id in ids) {
+                val i = group.pmsModify[id] ?: 0
+                table.tr(id).td(":").td(if (i >= 0) "ON" else "OFF").td("->").td("OFF")
+                group.pmsModify = group.pmsModify.apply { set(id, -1) }
+            }
         }
         context.println(table.toString())
         return SUCCESS
     }
 
-    @Method(name = "off",pmsLevel = CmdPermissionLevel.OP,order = 0,ignoreCheckers = [GroupCmdWorkingChecker::class])
-    fun off(
+    @Method(name = "off", pmsLevel = CmdPermissionLevel.OP, order = 0, ignoreCheckers = [PermissionChecker::class], addonCheckers = [UserOriginalPermissionChecker::class])
+    suspend fun off(
         @Argument(name = "群组", handler = GroupArgHandler::class)
         groupIn: Group,
         @Argument(name = "命令", handler = CmdIdArgHandler::class, multiValued = true)

@@ -3,6 +3,7 @@ package bot_luo_core.data
 import bot_luo_core.bot.BotContact
 import bot_luo_core.bot.BotContactType
 import bot_luo_core.bot.BotLuo
+import bot_luo_core.cli.CmdExecutable
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.contact.Group
@@ -40,21 +41,6 @@ class Group internal constructor(
         get() = PmsGroups[(getObj("pmsGroup")?: "NONE")]
         set(value) = setObj("pmsGroup", value.name)
 
-    var pmsModify: HashMap<String, Int>
-        get() = getObj("pmsModify")?: HashMap()
-        set(value) = setObj("pmsModify", value)
-
-    val realPmsGroup: PmsGroup
-        get() {
-            return if (pmsModify.isEmpty()) pmsGroup
-            else PmsGroup(
-                name = pmsGroup.name+"*",
-                description = pmsGroup.description+"(modified)",
-                inherit = pmsGroup.name,
-                modify = pmsModify
-            )
-        }
-
     var mutedExceptions: ArrayList<String>
         get() = getObj("mutedExceptions")?: Config.MUTED_EXCEPTIONS
         set(value) = setObj("mutedExceptions", value)
@@ -62,6 +48,21 @@ class Group internal constructor(
     var mutedCheckers: ArrayList<String>
         get() = getObj("mutedCheckers")?: Config.MUTED_CHECKERS
         set(value) = setObj("mutedCheckers", value)
+
+    fun getCmdWorking(id: String): Boolean {
+        return readCmdData(id).working ?: false //群组默认关闭
+    }
+    fun getCmdWorking(cmd: CmdExecutable): Boolean {
+        return readCmdData(cmd).working ?: false //群组默认关闭
+    }
+
+    fun setCmdWorking(id: String, value: Boolean) {
+        return writeCmdData(id, readCmdData(id).apply { working = value })
+    }
+
+    fun setCmdWorking(cmd: CmdExecutable, value: Boolean) {
+        return writeCmdData(cmd, readCmdData(cmd).apply { working = value })
+    }
 
     inline fun withServeBot(pms: MemberPermission = MemberPermission.MEMBER, action: (contact: Group)->Unit): Boolean {
         if (virtual) return false

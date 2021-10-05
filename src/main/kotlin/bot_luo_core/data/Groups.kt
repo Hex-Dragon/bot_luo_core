@@ -2,7 +2,7 @@ package bot_luo_core.data
 
 object Groups {
 
-    private val groups = HashMap<Long, Group>()
+    internal val groups = HashMap<Long, Group>()
     val activeGroupsCount: Int get() = groups.size
     val virtualGroup: Group get() = readGroup(0)
 

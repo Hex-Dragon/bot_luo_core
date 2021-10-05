@@ -35,11 +35,8 @@ class PermissionCmd(context: CmdContext) : Cmd(context) {
         val group = groupIn?: context.group
         val table = TableBuilder(4)
         table.th("权限 —— 群组 ${group.name}(${group.id})").br()
-        table.tr("权限组：").td(group.realPmsGroup.name)
-        table.tr("描述：").td(group.realPmsGroup.description)
-        table.prettyLines("修改项：", group.pmsModify.entries) { item, builder ->
-            builder.td("${item.key}:").td(item.value)
-        }
+        table.tr("权限组：").td(group.pmsGroup.name)
+        table.tr("描述：").td(group.pmsGroup.description)
         context.print(table.toString())
         return SUCCESS
     }
@@ -52,18 +49,15 @@ class PermissionCmd(context: CmdContext) : Cmd(context) {
         val user = userIn?: context.user
         val table = TableBuilder(4)
         table.th("权限 —— 用户 ${user.name}(${user.id})").br()
-        table.tr("权限组：").td(user.realPmsGroup.name)
-        table.tr("描述：").td(user.realPmsGroup.description)
-        table.prettyLines("修改项：", user.pmsModify.entries) { item, builder ->
-            builder.td("${item.key}:").td(item.value)
-        }
+        table.tr("权限组：").td(user.pmsGroup.name)
+        table.tr("描述：").td(user.pmsGroup.description)
         context.print(table.toString())
         return SUCCESS
     }
 
     /*  ========================  set  ========================  */
 
-    @Method(name = "set-group",alias = ["sg"],pmsLevel = CmdPermissionLevel.OP,title = "设置群组")
+    @Method(name = "set-group",alias = ["sg"],pmsLevel = CmdPermissionLevel.OP,title = "设置群组", order = 0)
     suspend fun setG(
         @Argument(name = "权限组", handler = PmsGroupArgHandler::class)
         pms: PmsGroup,
@@ -80,8 +74,15 @@ class PermissionCmd(context: CmdContext) : Cmd(context) {
         context.print(table.toString())
         return SUCCESS
     }
+    @Method(name = "set-group",alias = ["sg"],pmsLevel = CmdPermissionLevel.OP,title = "设置群组", order = 1)
+    suspend fun setG(
+        @Argument(name = "群组", required = false, multiValued = true, handler = MultiGroupArgHandler::class)
+        groupsIn: ArrayList<Group>?,
+        @Argument(name = "权限组", handler = PmsGroupArgHandler::class)
+        pms: PmsGroup
+    ): CmdReceipt = setG(pms, groupsIn)
 
-    @Method(name = "set-user",alias = ["su"],pmsLevel = CmdPermissionLevel.OP,title = "设置用户")
+    @Method(name = "set-user",alias = ["su"],pmsLevel = CmdPermissionLevel.OP,title = "设置用户",order = 0)
     suspend fun setU(
         @Argument(name = "权限组", handler = PmsGroupArgHandler::class)
         pms: PmsGroup,
@@ -98,4 +99,11 @@ class PermissionCmd(context: CmdContext) : Cmd(context) {
         context.print(table.toString())
         return SUCCESS
     }
+    @Method(name = "set-user",alias = ["su"],pmsLevel = CmdPermissionLevel.OP,title = "设置用户",order = 1)
+    suspend fun setU(
+        @Argument(name = "用户", required = false, multiValued = true, handler = MultiUserArgHandler::class)
+        usersIn: ArrayList<User>?,
+        @Argument(name = "权限组", handler = PmsGroupArgHandler::class)
+        pms: PmsGroup
+    ): CmdReceipt = setU(pms, usersIn)
 }

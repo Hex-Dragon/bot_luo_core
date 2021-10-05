@@ -2,7 +2,7 @@ package bot_luo_core.data
 
 object Users {
 
-    private val users = HashMap<Long, User>()
+    internal val users = HashMap<Long, User>()
     val activeUsersCount: Int get() = users.size
     val virtualUser: User get() = readUser(0)
 

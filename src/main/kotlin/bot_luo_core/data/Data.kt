@@ -18,7 +18,7 @@ abstract class Data(
     /**
      * JSON数据文件路径
      */
-    protected val filePath: String,
+    internal val filePath: String,
     /**
      * 自动保存间隔时间(ms)
      *

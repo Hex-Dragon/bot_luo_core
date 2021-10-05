@@ -3,6 +3,7 @@ package bot_luo_core.data
 import bot_luo_core.bot.BotContact
 import bot_luo_core.bot.BotContactType
 import bot_luo_core.bot.BotLuo
+import bot_luo_core.cli.CmdExecutable
 import bot_luo_core.cli.CmdReceipt
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.contact.*
@@ -50,20 +51,20 @@ class User internal constructor (
         get() = PmsGroups[(getObj("pmsGroup")?: "NONE")]
         set(value) = setObj("pmsGroup", value.name)
 
-    var pmsModify: HashMap<String, Int>
-        get() = getObj("pmsModify")?: HashMap()
-        set(value) = setObj("pmsModify", value)
+    fun getCmdWorking(id: String): Boolean {
+        return readCmdData(id).working ?: true //用户默认开启
+    }
+    fun getCmdWorking(cmd: CmdExecutable): Boolean {
+        return readCmdData(cmd).working ?: true //用户默认开启
+    }
 
-    val realPmsGroup: PmsGroup
-        get() {
-            return if (pmsModify.isEmpty()) pmsGroup
-            else PmsGroup(
-                name = pmsGroup.name+"*",
-                description = pmsGroup.description+"(modified)",
-                inherit = pmsGroup.name,
-                modify = pmsModify
-            )
-        }
+    fun setCmdWorking(id: String, value: Boolean) {
+        return writeCmdData(id, readCmdData(id).apply { working = value })
+    }
+
+    fun setCmdWorking(cmd: CmdExecutable, value: Boolean) {
+        return writeCmdData(cmd, readCmdData(cmd).apply { working = value })
+    }
 
     inline fun withServeBot(action: (contact: User)->Unit): Boolean {
         if (virtual) return false

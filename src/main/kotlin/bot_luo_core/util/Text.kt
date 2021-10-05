@@ -1,6 +1,5 @@
 package bot_luo_core.util
 
-import com.google.gson.Gson
 import net.mamoe.mirai.message.code.MiraiCode.deserializeMiraiCode
 import net.mamoe.mirai.message.data.MessageChain
 import net.mamoe.mirai.message.data.MessageChainBuilder
@@ -21,7 +20,7 @@ object Text {
         return sb.toString()
     }
 
-    fun String.escapeJson(): String = Gson().toJson(this@escapeJson)
+    fun String.escapeJson(): String = GSON.toJson(this@escapeJson)
 
     infix operator fun String.times(n: Int): String {
         if (n<=0) return ""
@@ -55,7 +54,18 @@ object Text {
     fun String.decodeUrl(): String = URLDecoder.decode(this, "UTF-8")
 
     /**
-     * 限制总长，当
+     * 限制总长，当超出给定长度时从头部截断
+     */
+    fun String.limitStart(len: Int): String {
+        if (len <= 3) return '.'*len
+        return if (this.length > len)
+            "..." + this.substring(this.length - len + 3)
+        else
+            this
+    }
+
+    /**
+     * 限制总长，当超出给定长度时从尾部截断
      */
     fun String.limitEnd(len: Int): String {
         if (len <= 3) return '.'*len
@@ -65,6 +75,9 @@ object Text {
             this
     }
 
+    /**
+     * 限制总长，当超出给定长度时去除中间
+     */
     fun String.limitMid(len: Int): String {
         if (len <= 3) return '.'*len
         return if (this.length > len)

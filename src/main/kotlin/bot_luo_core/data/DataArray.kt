@@ -1,5 +1,6 @@
 package bot_luo_core.data
 
+import bot_luo_core.util.GSON
 import com.github.salomonbrys.kotson.removeAll
 import com.google.gson.Gson
 import com.google.gson.JsonArray
@@ -61,7 +62,7 @@ abstract class DataArray(
             if (!file.parentFile.exists()) file.parentFile.mkdirs()
             file.createNewFile()
         }
-        file.writeText(Gson().toJson(element))
+        file.writeText(GSON.toJson(element))
         changed = false
     }
 
@@ -73,12 +74,12 @@ abstract class DataArray(
     inline fun <reified T> getObj(index: Int): T? {
         return if (index >= element.size()) {
             val type = object : TypeToken<T>() {}.type
-            Gson().fromJson(element[index], type)
+            GSON.fromJson(element[index], type)
         } else null
     }
     inline fun <reified T: List<*>> getArray(): T {
         val type = object : TypeToken<T>() {}.type
-        return Gson().fromJson(element, type)
+        return GSON.fromJson(element, type)
     }
 
     /**
@@ -92,12 +93,12 @@ abstract class DataArray(
      * @see withLockedAccessing
      */
     fun <T> setObj(index: Int, value: T?) {
-        element[index] = Gson().toJsonTree(value)
+        element[index] = GSON.toJsonTree(value)
         changed = true
     }
     fun <T: List<*>> setArray(value: T) {
         element.removeAll()
-        value.forEach { v -> element.add(Gson().toJsonTree(value)) }
+        value.forEach { v -> element.add(GSON.toJsonTree(v)) }
         changed = true
     }
 }

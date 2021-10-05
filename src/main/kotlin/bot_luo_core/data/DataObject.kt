@@ -1,5 +1,6 @@
 package bot_luo_core.data
 
+import bot_luo_core.util.GSON
 import bot_luo_core.util.set
 import com.github.salomonbrys.kotson.put
 import com.github.salomonbrys.kotson.putAll
@@ -64,7 +65,7 @@ abstract class DataObject(
             if (!file.parentFile.exists()) file.parentFile.mkdirs()
             file.createNewFile()
         }
-        file.writeText(Gson().toJson(element))
+        file.writeText(GSON.toJson(element))
         changed = false
     }
 
@@ -76,12 +77,12 @@ abstract class DataObject(
     inline fun <reified T> getObj(key: String): T? {
         return if (element.has(key)) {
             val type = object : TypeToken<T>() {}.type
-            Gson().fromJson(element[key], type)
+            GSON.fromJson(element[key], type)
         } else null
     }
     inline fun <reified T: Map<*, *>> getObj(): T {
         val type = object : TypeToken<T>() {}.type
-        return Gson().fromJson(element, type)
+        return GSON.fromJson(element, type)
     }
 
     /**
@@ -100,7 +101,7 @@ abstract class DataObject(
     }
     fun <T: Map<String, *>> setObj(value: T?) {
         element.removeAll()
-        value?.forEach{ (k,v) -> element.put(k to Gson().toJsonTree(v)) }
+        value?.forEach{ (k,v) -> element.put(k to GSON.toJsonTree(v)) }
         changed = true
     }
 }

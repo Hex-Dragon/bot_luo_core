@@ -4,7 +4,8 @@ import bot_luo_core.cli.*
 import bot_luo_core.cli.annotation.Argument
 import bot_luo_core.cli.annotation.Command
 import bot_luo_core.cli.annotation.Method
-import bot_luo_core.cli.checkers.addon.GroupOriginalPermissionChecker
+import bot_luo_core.cli.checkers.PermissionChecker
+import bot_luo_core.cli.checkers.addon.GroupPermissionChecker
 import bot_luo_core.cli.exceptions.CheckerFatal
 import bot_luo_core.cli.handlers.CmdExArgHandler
 import bot_luo_core.util.TableBuilder
@@ -52,7 +53,7 @@ class HelpCmd(context: CmdContext) : Cmd(context) {
 
         val filtered = cmds.filter {
             try {
-                justCheck.forEach{checker -> if (checker in it.checkers) checker.createInstance().check(it,context)}
+                justCheck.forEach{checker -> checker.createInstance().check(it,context)}
                 true
             } catch (ignore: CheckerFatal) {
                 false
@@ -71,7 +72,7 @@ class HelpCmd(context: CmdContext) : Cmd(context) {
     companion object {
 
         val justCheck = arrayOf(
-            GroupOriginalPermissionChecker::class
+            GroupPermissionChecker::class
         )
 
         fun cmdHelpGen(cmds: List<CmdExecutable>): String? {

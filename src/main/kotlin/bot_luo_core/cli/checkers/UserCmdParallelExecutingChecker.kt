@@ -5,7 +5,7 @@ import bot_luo_core.cli.CmdContext
 import bot_luo_core.cli.CmdExecutable
 import net.mamoe.mirai.message.data.toPlainText
 
-class UserParallelExecutingChecker: Checker {
+class UserCmdParallelExecutingChecker: Checker {
     override val name = "用户命令并发检定器"
 
     override fun check(cmd: CmdExecutable, context: CmdContext) {

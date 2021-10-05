@@ -4,7 +4,7 @@ import bot_luo_core.cli.*
 import bot_luo_core.cli.annotation.Argument
 import bot_luo_core.cli.annotation.Command
 import bot_luo_core.cli.annotation.Method
-import bot_luo_core.cli.checkers.addon.UserOriginalPermissionChecker
+import bot_luo_core.cli.checkers.GroupCmdWorkingChecker
 import bot_luo_core.cli.exceptions.SyntaxError
 import bot_luo_core.cli.handlers.GroupArgHandler
 import bot_luo_core.cli.handlers.JsonPathArgHandler
@@ -64,7 +64,7 @@ class DataCmd(context: CmdContext) : Cmd(context) {
         return FATAL
     }
 
-    @Method(name = "", alias = ["get-group","gg","g"], pmsLevel = CmdPermissionLevel.OP, addonCheckers = [UserOriginalPermissionChecker::class], title = "获取群组数据")
+    @Method(name = "", alias = ["get-group","gg","g"], pmsLevel = CmdPermissionLevel.OP, ignoreCheckers = [GroupCmdWorkingChecker::class], title = "获取群组数据")
     fun getGroup (
         @Argument(name = "群组", handler = GroupArgHandler::class)
         group: Group,
@@ -72,7 +72,7 @@ class DataCmd(context: CmdContext) : Cmd(context) {
         pathIn: ArrayList<String>?
     ): CmdReceipt = get(group, "群组", "${group.name}(${group.id})", pathIn?: ArrayList())
 
-    @Method(name = "get-user", alias = ["gu","u"], pmsLevel = CmdPermissionLevel.OP, addonCheckers = [UserOriginalPermissionChecker::class], title = "获取用户数据")
+    @Method(name = "get-user", alias = ["gu","u"], pmsLevel = CmdPermissionLevel.OP, ignoreCheckers = [GroupCmdWorkingChecker::class], title = "获取用户数据")
     fun getUser (
         @Argument(name = "用户", handler = UserArgHandler::class)
         user: User,
@@ -158,7 +158,7 @@ class DataCmd(context: CmdContext) : Cmd(context) {
         return FATAL
     }
 
-    @Method(name = "set-group", alias = ["sg"], pmsLevel = CmdPermissionLevel.DEBUG, addonCheckers = [UserOriginalPermissionChecker::class], order = 0, title = "修改群组数据")
+    @Method(name = "set-group", alias = ["sg"], pmsLevel = CmdPermissionLevel.DEBUG, ignoreCheckers = [GroupCmdWorkingChecker::class], order = 0, title = "修改群组数据")
     suspend fun setGroup (
         @Argument(name = "群组", handler = GroupArgHandler::class)
         group: Group,
@@ -168,7 +168,7 @@ class DataCmd(context: CmdContext) : Cmd(context) {
         value: String
     ): CmdReceipt = set(group, "群组", "${group.name}(${group.id})", path, value)
 
-    @Method(name = "set-user", alias = ["su"], pmsLevel = CmdPermissionLevel.DEBUG, addonCheckers = [UserOriginalPermissionChecker::class], order = 0, title = "修改用户数据")
+    @Method(name = "set-user", alias = ["su"], pmsLevel = CmdPermissionLevel.DEBUG, ignoreCheckers = [GroupCmdWorkingChecker::class], order = 0, title = "修改用户数据")
     suspend fun setUser (
         @Argument(name = "用户", handler = UserArgHandler::class)
         user: User,
@@ -178,7 +178,7 @@ class DataCmd(context: CmdContext) : Cmd(context) {
         value: String
     ): CmdReceipt = set(user, "用户", "${user.name}(${user.id})", path, value)
 
-    @Method(name = "set-group", alias = ["sg"], pmsLevel = CmdPermissionLevel.DEBUG, addonCheckers = [UserOriginalPermissionChecker::class], order = 1, title = "修改群组数据")
+    @Method(name = "set-group", alias = ["sg"], pmsLevel = CmdPermissionLevel.DEBUG, ignoreCheckers = [GroupCmdWorkingChecker::class], order = 1, title = "修改群组数据")
     suspend fun setGroup (
         @Argument(name = "群组", handler = GroupArgHandler::class)
         group: Group,
@@ -193,7 +193,7 @@ class DataCmd(context: CmdContext) : Cmd(context) {
         type: String
     ): CmdReceipt  = set(group, "群组", "${group.name}(${group.id})", path, value, type)
 
-    @Method(name = "set-user", alias = ["su"], pmsLevel = CmdPermissionLevel.DEBUG, addonCheckers = [UserOriginalPermissionChecker::class], order = 1, title = "修改用户数据")
+    @Method(name = "set-user", alias = ["su"], pmsLevel = CmdPermissionLevel.DEBUG, ignoreCheckers = [GroupCmdWorkingChecker::class], order = 1, title = "修改用户数据")
     suspend fun setUser (
         @Argument(name = "用户", handler = UserArgHandler::class)
         user: User,

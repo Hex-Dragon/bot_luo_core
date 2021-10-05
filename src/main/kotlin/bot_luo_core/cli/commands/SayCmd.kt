@@ -6,6 +6,7 @@ import bot_luo_core.cli.*
 import bot_luo_core.cli.annotation.Argument
 import bot_luo_core.cli.annotation.Command
 import bot_luo_core.cli.annotation.Method
+import bot_luo_core.cli.checkers.GroupCmdWorkingChecker
 import bot_luo_core.cli.handlers.GreedyMessageArgHandler
 import net.mamoe.mirai.event.broadcast
 import net.mamoe.mirai.message.data.MessageChain
@@ -23,7 +24,7 @@ import net.mamoe.mirai.message.data.MessageChain
 )
 class SayCmd(context: CmdContext) : Cmd(context) {
 
-    @Method(name = "", alias = [], pmsLevel = CmdPermissionLevel.OP)
+    @Method(name = "", alias = [], pmsLevel = CmdPermissionLevel.OP, ignoreCheckers = [GroupCmdWorkingChecker::class])
     suspend fun say (
         @Argument(name = "消息", handler = GreedyMessageArgHandler::class)
         msg: MessageChain

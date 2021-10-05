@@ -133,11 +133,11 @@ class CmdContext(
         if (text.isBlank()) return null
         withBackendBot{ contact ->
             if (contact !is FileSupported) return null
-            val file = File.createTempFile("output-${this.hashCode().toString(16)}",".txt")
+            val file = File.createTempFile("dumpfile-${this.hashCode().toString(16)}",".txt")
             file.deleteOnExit()
             file.writeText(text)
             file.toExternalResource().use { resource ->
-                return  contact.sendMessageWithLog(contact.uploadFile("${this.reader.original.content.replace(' ','_')}.txt",resource))
+                return  contact.sendMessageWithLog(contact.uploadFile("dumpfile-${this.hashCode().toString(16)}.txt",resource))
             }
         }
         return null

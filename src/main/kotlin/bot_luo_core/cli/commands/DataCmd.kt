@@ -11,6 +11,7 @@ import bot_luo_core.cli.handlers.JsonPathArgHandler
 import bot_luo_core.cli.handlers.UserArgHandler
 import bot_luo_core.data.*
 import bot_luo_core.util.TableBuilder
+import bot_luo_core.util.indices
 import bot_luo_core.util.set
 import com.github.salomonbrys.kotson.add
 import com.github.salomonbrys.kotson.keys
@@ -243,7 +244,7 @@ class DataCmd(context: CmdContext) : Cmd(context) {
         }
 
         private fun arrayGet(array: JsonArray, table: TableBuilder) {
-            for (i in 0 until array.size()) {
+            for (i in array.indices) {
                 table.tr("[$i]").td(formatValue(array[i]))
             }
         }
@@ -276,7 +277,7 @@ class DataCmd(context: CmdContext) : Cmd(context) {
                     }
                     is JsonArray -> {
                         val index = path[0].toIntOrNull() ?: throw NullPointerException()
-                        if (index !in 0 until obj.size()) throw IndexOutOfBoundsException()
+                        if (index !in obj.indices) throw IndexOutOfBoundsException()
                         readByPath(obj[index], path.apply { removeAt(0) }, table)
                     }
                     else -> throw NullPointerException()
@@ -334,7 +335,7 @@ class DataCmd(context: CmdContext) : Cmd(context) {
                         }
                         is JsonArray -> {
                             val index = path[0].toIntOrNull() ?: throw NullPointerException()
-                            if (index !in 0 until obj.size()) throw IndexOutOfBoundsException()
+                            if (index !in obj.indices) throw IndexOutOfBoundsException()
                             writeByPathTyped(obj[index], path.apply { removeAt(0) }, value)
                         }
                         else -> throw NullPointerException()

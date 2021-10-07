@@ -2,6 +2,7 @@ package bot_luo_core.cli
 
 import bot_luo_core.bot.VirtualMessageEvent
 import bot_luo_core.cli.Checker.Companion.order
+import bot_luo_core.cli.commands.DumpFileCmd
 import bot_luo_core.cli.exceptions.*
 import bot_luo_core.data.*
 import bot_luo_core.data.Config.CMD_PREFIX
@@ -93,7 +94,17 @@ object CmdHandler {
         when (context.uploadOutputFile) {
             0 -> {  //不自动上传
                 if (context.getOutput().content.length > MAX_OUTPUT_LEN) {
-                    context.sendOutputWithLog(context.getOutput().limitEnd(MAX_OUTPUT_LEN) + "\n输出过大，考虑使用dumpfile命令获取输出")
+                    val canDump = try {
+                        val cmd = CmdCatalog.findCmdEx("dumpfile","")[0]
+                        cmd.checkers.forEach { it.createInstance().check(cmd, context) }
+                        true
+                    } catch (ignore: CheckerFatal) {
+                        false
+                    }
+                    if (canDump)
+                        context.sendOutputWithLog(context.getOutput().limitEnd(MAX_OUTPUT_LEN) + "\n输出过大，考虑使用dumpfile命令获取输出")
+                    else
+                        context.sendOutputWithLog(context.getOutput().limitEnd(MAX_OUTPUT_LEN))
                 } else {
                     context.sendOutputWithLog()
                 }
@@ -144,7 +155,7 @@ object CmdHandler {
 
                     val res = cmd.executeWith(context, args)
 
-                    Logger.log(cmd, context, "执行完成：${res.success}")
+                    Logger.log(cmd, context, "执行完成：${res}")
 
                     runBlocking { withLockedAccessing(context.user, context.group, Cmds) {
                         if (res.addCount) {

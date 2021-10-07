@@ -1,6 +1,7 @@
 package bot_luo_core.data
 
 import bot_luo_core.util.GSON
+import bot_luo_core.util.clear
 import com.github.salomonbrys.kotson.removeAll
 import com.google.gson.Gson
 import com.google.gson.JsonArray
@@ -97,7 +98,7 @@ abstract class DataArray(
         changed = true
     }
     fun <T: List<*>> setArray(value: T) {
-        element.removeAll()
+        element.clear()
         value.forEach { v -> element.add(GSON.toJsonTree(v)) }
         changed = true
     }

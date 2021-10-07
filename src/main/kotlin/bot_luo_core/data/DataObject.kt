@@ -1,6 +1,7 @@
 package bot_luo_core.data
 
 import bot_luo_core.util.GSON
+import bot_luo_core.util.clear
 import bot_luo_core.util.set
 import com.github.salomonbrys.kotson.put
 import com.github.salomonbrys.kotson.putAll
@@ -100,7 +101,7 @@ abstract class DataObject(
         changed = true
     }
     fun <T: Map<String, *>> setObj(value: T?) {
-        element.removeAll()
+        element.clear()
         value?.forEach{ (k,v) -> element.put(k to GSON.toJsonTree(v)) }
         changed = true
     }

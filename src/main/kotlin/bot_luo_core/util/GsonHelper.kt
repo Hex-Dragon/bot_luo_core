@@ -1,5 +1,6 @@
 package bot_luo_core.util
 
+import com.github.salomonbrys.kotson.keys
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonArray
@@ -18,6 +19,16 @@ operator fun JsonObject.set(key: String, value: Any?) {
 operator fun JsonArray.set(key: Int, value: Any?) {
     this.set(key, GSON.toJsonTree(value))
 }
+
+fun JsonObject.clear() {
+    for (k in keys()) remove(k)
+}
+
+fun JsonArray.clear() {
+    for (i in indices.reversed()) remove(i)
+}
+
+val JsonArray.indices get() = 0 until size()
 
 /**
  * # JSON数据读写工具类

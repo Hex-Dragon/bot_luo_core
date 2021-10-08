@@ -13,14 +13,14 @@ import org.apache.logging.log4j.Level
 object PmsGroups: DataObject("data/pms_groups.json", 10000L, false) {
     override fun unload() {}
 
-    private const val DESC_BLOCK = "屏蔽组，所有命令均为关闭状态"
-    private const val DESC_NONE = "虚空组，所有命令均为叠加态(0)"
-    private const val DESC_NORMAL = "普通组，低级命令对此组开启"
-    private const val DESC_HIGH = "高级组，高级及以下的命令均开启"
-    private const val DESC_OP = "管理组，管理级及以下的命令均开启"
-    private const val DESC_DEBUG = "调试组，所有命令均为开启状态"
+    private const val DESC_BLOCK = "屏蔽组，所有命令均为禁止状态(-1)"
+    private const val DESC_NONE = "虚空组，所有命令均为中立(0)"
+    private const val DESC_NORMAL = "普通组，低级命令对此组开启(1)，其余为中立(0)"
+    private const val DESC_HIGH = "高级组，高级及以下的命令均开启(1)，其余为中立(0)"
+    private const val DESC_OP = "管理组，管理级及以下的命令均开启(1)，其余为中立(0)"
+    private const val DESC_DEBUG = "调试组，所有命令均为开启状态(1)"
 
-    val BUILTIN_PMS_GROUPS = arrayOf("BLOCKED","NONE","NORMAL","HIGH","OP","DEBUG")
+    val BUILTIN_PMS_GROUPS = arrayOf("BLOCK","NONE","NORMAL","HIGH","OP","DEBUG")
 
     init {
         Logger.sysLog(Level.DEBUG, "开始构建内建权限组……")

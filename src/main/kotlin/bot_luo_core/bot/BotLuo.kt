@@ -154,6 +154,11 @@ object BotLuo {
     fun Bot.isMainBotOf(groupId: Long) = this == groupMap[groupId]?.get(0)
 
     /**
+     * ## 获取群组主Bot
+     */
+    fun getMainBot(id: Long): Bot? = groupMap[id]?.get(0)
+
+    /**
      * ## 通过群号获取[mirai群组][Group]
      *
      * 此方法获取的群组所关联的Bot是不确定的

@@ -36,7 +36,7 @@ class PermissionGroupCmd(context: CmdContext) : Cmd(context) {
         val table = TableBuilder(4)
         table.th("权限组 —— ${pmsGroup.name}")
         table.tr("继承于：").td(pmsGroup.inherit)
-        table.prettyLines("修改项：", pmsGroup.modify?.entries?: ArrayList()) { item, builder ->
+        table.prettyLines("权限值：", pmsGroup.modify?.entries?: ArrayList()) { item, builder ->
             builder.td("${item.key}:").td(item.value)
         }
         table.tr("描述：").sp().p(pmsGroup.description)
@@ -104,9 +104,9 @@ class PermissionGroupCmd(context: CmdContext) : Cmd(context) {
         description: String,
     ): CmdReceipt  = add(name, null, description)
 
-    /*  ========================  modify  ========================  */
+    /*  ========================  setValue  ========================  */
 
-    @Method(name = "modify", alias = ["m"], pmsLevel = CmdPermissionLevel.OP, title = "设置修改")
+    @Method(name = "set-value", alias = ["sv"], pmsLevel = CmdPermissionLevel.OP, title = "设置值")
     suspend fun modify (
         @Argument(name = "权限组", handler = PmsGroupArgHandler::class)
         pmsGroup: PmsGroup,
@@ -120,7 +120,7 @@ class PermissionGroupCmd(context: CmdContext) : Cmd(context) {
             return FATAL
         }
         val table = TableBuilder(4)
-        table.th("权限组设置修改 —— ${pmsGroup.name}").br()
+        table.th("权限组设置值 —— ${pmsGroup.name}").br()
         if (pmsGroup.modify == null) pmsGroup.modify = HashMap()
         for (cmd in cmds) {
             table.tr(cmd.id).td(pmsGroup.modify!![cmd.id]).td("->").td(value)
@@ -133,9 +133,9 @@ class PermissionGroupCmd(context: CmdContext) : Cmd(context) {
         return SUCCESS
     }
 
-    /*  ========================  removeModify  ========================  */
+    /*  ========================  removeValue  ========================  */
 
-    @Method(name = "remove-modify", alias = ["rm"], pmsLevel = CmdPermissionLevel.OP, title = "移除修改")
+    @Method(name = "remove-value", alias = ["rv"], pmsLevel = CmdPermissionLevel.OP, title = "移除值")
     suspend fun removeModify (
         @Argument(name = "权限组", handler = PmsGroupArgHandler::class)
         pmsGroup: PmsGroup,
@@ -147,9 +147,9 @@ class PermissionGroupCmd(context: CmdContext) : Cmd(context) {
             return FATAL
         }
         val table = TableBuilder(4)
-        table.th("权限组移除修改 —— ${pmsGroup.name}").br()
+        table.th("权限组移除值 —— ${pmsGroup.name}").br()
         if (pmsGroup.modify == null) {
-            context.print("权限组“${pmsGroup.name}”未设置任何修改")
+            context.print("权限组“${pmsGroup.name}”未设置任何值")
             return FATAL
         }
         for (cmd in cmds) {

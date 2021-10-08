@@ -38,7 +38,7 @@ object CmdHandler {
             MessageReader(event.message),
             Users.readUser(event.sender.id).apply { contact = event.sender } ,
             if (event is GroupAwareMessageEvent)
-                Groups.readGroup(event.group.id).apply { contact = event.group }
+                Groups.readGroup(event.group.id)
             else
                 Groups.virtualGroup
         )

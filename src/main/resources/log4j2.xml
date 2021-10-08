@@ -21,6 +21,12 @@
         </RollingRandomAccessFile>
     </Appenders>
     <Loggers>
+        <Logger name="net.mamoe.mirai.Bot" additivity="false">
+            <Level value="DEBUG"/>
+            <AppenderRef ref="SysOut"/>
+            <AppenderRef ref="LogFile"/>
+            <AppenderRef ref="DebugFile"/>
+        </Logger>
         <Root level="all">
             <AppenderRef ref="SysOut"/>
             <AppenderRef ref="LogFile"/>

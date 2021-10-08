@@ -10,6 +10,7 @@ import bot_luo_core.cli.annotation.Method
 import bot_luo_core.cli.checkers.GroupCmdWorkingChecker
 import bot_luo_core.cli.handlers.CmdIdArgHandler
 import bot_luo_core.cli.handlers.GroupArgHandler
+import bot_luo_core.cli.handlers.UserArgHandler
 import bot_luo_core.data.Group
 import bot_luo_core.data.User
 import bot_luo_core.data.withLockedAccessing
@@ -48,7 +49,7 @@ class SwitchCmd(context: CmdContext) : Cmd(context) {
     fun show(
         @Argument(name = "命令", handler = CmdIdArgHandler::class, multiValued = true)
         ids: ArrayList<String>,
-        @Argument(name = "用户", handler = GroupArgHandler::class, required = false)
+        @Argument(name = "用户", handler = UserArgHandler::class, required = false)
         userIn: User?
     ): CmdReceipt {
         val user = userIn?: context.user
@@ -73,7 +74,7 @@ class SwitchCmd(context: CmdContext) : Cmd(context) {
     @Method(name = "user", alias = ["u"], pmsLevel = CmdPermissionLevel.OP, order = 1, ignoreCheckers = [GroupCmdWorkingChecker::class],
         title = "查看用户", usage = "获取命令是否对用户开启")
     fun show(
-        @Argument(name = "用户", handler = GroupArgHandler::class)
+        @Argument(name = "用户", handler = UserArgHandler::class)
         userIn: User,
         @Argument(name = "命令", handler = CmdIdArgHandler::class, multiValued = true)
         ids: ArrayList<String>
@@ -107,7 +108,7 @@ class SwitchCmd(context: CmdContext) : Cmd(context) {
     suspend fun on(
         @Argument(name = "命令", handler = CmdIdArgHandler::class, multiValued = true)
         ids: ArrayList<String>,
-        @Argument(name = "用户", handler = GroupArgHandler::class, required = false)
+        @Argument(name = "用户", handler = UserArgHandler::class, required = false)
         userIn: User?
     ): CmdReceipt {
         val user = userIn?: context.user
@@ -135,7 +136,7 @@ class SwitchCmd(context: CmdContext) : Cmd(context) {
     @Method(name = "user-on", alias = ["uon"], pmsLevel = CmdPermissionLevel.OP, order = 1, ignoreCheckers = [GroupCmdWorkingChecker::class],
         title = "用户开启")
     suspend fun on(
-        @Argument(name = "用户", handler = GroupArgHandler::class)
+        @Argument(name = "用户", handler = UserArgHandler::class)
         userIn: User,
         @Argument(name = "命令", handler = CmdIdArgHandler::class, multiValued = true)
         ids: ArrayList<String>
@@ -169,7 +170,7 @@ class SwitchCmd(context: CmdContext) : Cmd(context) {
     suspend fun off(
         @Argument(name = "命令", handler = CmdIdArgHandler::class, multiValued = true)
         ids: ArrayList<String>,
-        @Argument(name = "用户", handler = GroupArgHandler::class, required = false)
+        @Argument(name = "用户", handler = UserArgHandler::class, required = false)
         userIn: User?
     ): CmdReceipt {
         val user = userIn?: context.user
@@ -197,7 +198,7 @@ class SwitchCmd(context: CmdContext) : Cmd(context) {
     @Method(name = "user-off", alias = ["uoff"], pmsLevel = CmdPermissionLevel.OP, order = 1, ignoreCheckers = [GroupCmdWorkingChecker::class],
         title = "用户关闭")
     suspend fun off(
-        @Argument(name = "用户", handler = GroupArgHandler::class)
+        @Argument(name = "用户", handler = UserArgHandler::class)
         userIn: User,
         @Argument(name = "命令", handler = CmdIdArgHandler::class, multiValued = true)
         ids: ArrayList<String>

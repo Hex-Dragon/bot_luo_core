@@ -31,9 +31,15 @@ class SayCmd(context: CmdContext) : Cmd(context) {
     ): CmdReceipt { with(context) {
 
         if (!group.virtual) {
-            group.bot = if (user.virtual) BotLuo.getContactableBots(group).randomOrNull()
-            else BotLuo.getBotOrNull(user.id)
-            group.sendMessage(msg)
+            if (user.virtual)
+                context.sendMessageWithLog(msg)
+            else {
+                val contact = BotLuo.getContactableBots(group).find { it.id == user.id }?.getGroup(group.id)
+                if (contact != null) {
+                    group.contact = contact
+                    context.sendMessageWithLog(msg)
+                }
+            }
         }
 
         VirtualMessageEvent(

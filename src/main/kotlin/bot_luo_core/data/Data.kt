@@ -100,7 +100,7 @@ abstract class Data(
      *
      * 需要确保卸载时数据已使用[save]存入磁盘
      */
-    abstract fun unload()
+    open fun unload() {}
 
     /**
      * 是否已有记录文件存在

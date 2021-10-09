@@ -8,6 +8,7 @@ import bot_luo_core.cli.annotation.Argument
 import bot_luo_core.cli.annotation.Command
 import bot_luo_core.cli.annotation.Method
 import bot_luo_core.cli.checkers.GroupCmdWorkingChecker
+import bot_luo_core.cli.checkers.UserCmdWorkingChecker
 import bot_luo_core.cli.handlers.CmdIdArgHandler
 import bot_luo_core.cli.handlers.GroupArgHandler
 import bot_luo_core.cli.handlers.UserArgHandler
@@ -26,7 +27,7 @@ class SwitchCmd(context: CmdContext) : Cmd(context) {
 
     /*  ========================  show  ========================  */
 
-    @Method(name = "", alias = ["group","g"], pmsLevel = CmdPermissionLevel.OP, order = 0, ignoreCheckers = [GroupCmdWorkingChecker::class],
+    @Method(name = "", alias = ["group","g"], pmsLevel = CmdPermissionLevel.OP, order = 0, ignoreCheckers = [GroupCmdWorkingChecker::class, UserCmdWorkingChecker::class],
         title = "查看群组", usage = "获取命令是否在群组开启")
     fun show(
         @Argument(name = "命令", handler = CmdIdArgHandler::class, multiValued = true)
@@ -44,7 +45,7 @@ class SwitchCmd(context: CmdContext) : Cmd(context) {
         return SUCCESS
     }
 
-    @Method(name = "user", alias = ["u"], pmsLevel = CmdPermissionLevel.OP, order = 0, ignoreCheckers = [GroupCmdWorkingChecker::class],
+    @Method(name = "user", alias = ["u"], pmsLevel = CmdPermissionLevel.OP, order = 0, ignoreCheckers = [GroupCmdWorkingChecker::class, UserCmdWorkingChecker::class],
         title = "查看用户", usage = "获取命令是否对用户开启")
     fun show(
         @Argument(name = "命令", handler = CmdIdArgHandler::class, multiValued = true)
@@ -62,7 +63,7 @@ class SwitchCmd(context: CmdContext) : Cmd(context) {
         return SUCCESS
     }
 
-    @Method(name = "", alias = ["group","g"], pmsLevel = CmdPermissionLevel.OP, order = 1, ignoreCheckers = [GroupCmdWorkingChecker::class],
+    @Method(name = "", alias = ["group","g"], pmsLevel = CmdPermissionLevel.OP, order = 1, ignoreCheckers = [GroupCmdWorkingChecker::class, UserCmdWorkingChecker::class],
         title = "查看群组", usage = "获取命令是否在群组开启")
     fun show(
         @Argument(name = "群组", handler = GroupArgHandler::class)
@@ -71,7 +72,7 @@ class SwitchCmd(context: CmdContext) : Cmd(context) {
         ids: ArrayList<String>
     ) = show(ids, groupIn)
 
-    @Method(name = "user", alias = ["u"], pmsLevel = CmdPermissionLevel.OP, order = 1, ignoreCheckers = [GroupCmdWorkingChecker::class],
+    @Method(name = "user", alias = ["u"], pmsLevel = CmdPermissionLevel.OP, order = 1, ignoreCheckers = [GroupCmdWorkingChecker::class, UserCmdWorkingChecker::class],
         title = "查看用户", usage = "获取命令是否对用户开启")
     fun show(
         @Argument(name = "用户", handler = UserArgHandler::class)
@@ -82,7 +83,7 @@ class SwitchCmd(context: CmdContext) : Cmd(context) {
 
     /*  ========================  on  ========================  */
 
-    @Method(name = "group-on", alias = ["gon","on"], pmsLevel = CmdPermissionLevel.OP, order = 0, ignoreCheckers = [GroupCmdWorkingChecker::class],
+    @Method(name = "group-on", alias = ["gon","on"], pmsLevel = CmdPermissionLevel.OP, order = 0, ignoreCheckers = [GroupCmdWorkingChecker::class, UserCmdWorkingChecker::class],
         title = "群组开启")
     suspend fun on(
         @Argument(name = "命令", handler = CmdIdArgHandler::class, multiValued = true)
@@ -103,7 +104,7 @@ class SwitchCmd(context: CmdContext) : Cmd(context) {
         return SUCCESS
     }
 
-    @Method(name = "user-on", alias = ["uon"], pmsLevel = CmdPermissionLevel.OP, order = 0, ignoreCheckers = [GroupCmdWorkingChecker::class],
+    @Method(name = "user-on", alias = ["uon"], pmsLevel = CmdPermissionLevel.OP, order = 0, ignoreCheckers = [GroupCmdWorkingChecker::class, UserCmdWorkingChecker::class],
         title = "用户开启")
     suspend fun on(
         @Argument(name = "命令", handler = CmdIdArgHandler::class, multiValued = true)
@@ -124,7 +125,7 @@ class SwitchCmd(context: CmdContext) : Cmd(context) {
         return SUCCESS
     }
 
-    @Method(name = "group-on", alias = ["gon","on"], pmsLevel = CmdPermissionLevel.OP, order = 1, ignoreCheckers = [GroupCmdWorkingChecker::class],
+    @Method(name = "group-on", alias = ["gon","on"], pmsLevel = CmdPermissionLevel.OP, order = 1, ignoreCheckers = [GroupCmdWorkingChecker::class, UserCmdWorkingChecker::class],
         title = "群组开启")
     suspend fun on(
         @Argument(name = "群组", handler = GroupArgHandler::class)
@@ -133,7 +134,7 @@ class SwitchCmd(context: CmdContext) : Cmd(context) {
         ids: ArrayList<String>
     ) = on (ids, groupIn)
 
-    @Method(name = "user-on", alias = ["uon"], pmsLevel = CmdPermissionLevel.OP, order = 1, ignoreCheckers = [GroupCmdWorkingChecker::class],
+    @Method(name = "user-on", alias = ["uon"], pmsLevel = CmdPermissionLevel.OP, order = 1, ignoreCheckers = [GroupCmdWorkingChecker::class, UserCmdWorkingChecker::class],
         title = "用户开启")
     suspend fun on(
         @Argument(name = "用户", handler = UserArgHandler::class)
@@ -144,7 +145,7 @@ class SwitchCmd(context: CmdContext) : Cmd(context) {
 
     /*  ========================  off  ========================  */
 
-    @Method(name = "group-off", alias = ["goff","off"], pmsLevel = CmdPermissionLevel.OP, order = 0, ignoreCheckers = [GroupCmdWorkingChecker::class],
+    @Method(name = "group-off", alias = ["goff","off"], pmsLevel = CmdPermissionLevel.OP, order = 0, ignoreCheckers = [GroupCmdWorkingChecker::class, UserCmdWorkingChecker::class],
         title = "群组关闭")
     suspend fun off(
         @Argument(name = "命令", handler = CmdIdArgHandler::class, multiValued = true)
@@ -165,7 +166,7 @@ class SwitchCmd(context: CmdContext) : Cmd(context) {
         return SUCCESS
     }
 
-    @Method(name = "user-off", alias = ["uoff"], pmsLevel = CmdPermissionLevel.OP, order = 0, ignoreCheckers = [GroupCmdWorkingChecker::class],
+    @Method(name = "user-off", alias = ["uoff"], pmsLevel = CmdPermissionLevel.OP, order = 0, ignoreCheckers = [GroupCmdWorkingChecker::class, UserCmdWorkingChecker::class],
         title = "用户关闭")
     suspend fun off(
         @Argument(name = "命令", handler = CmdIdArgHandler::class, multiValued = true)
@@ -186,7 +187,7 @@ class SwitchCmd(context: CmdContext) : Cmd(context) {
         return SUCCESS
     }
 
-    @Method(name = "group-off", alias = ["goff","off"], pmsLevel = CmdPermissionLevel.OP, order = 1, ignoreCheckers = [GroupCmdWorkingChecker::class],
+    @Method(name = "group-off", alias = ["goff","off"], pmsLevel = CmdPermissionLevel.OP, order = 1, ignoreCheckers = [GroupCmdWorkingChecker::class, UserCmdWorkingChecker::class],
         title = "群组关闭")
     suspend fun off(
         @Argument(name = "群组", handler = GroupArgHandler::class)
@@ -195,7 +196,7 @@ class SwitchCmd(context: CmdContext) : Cmd(context) {
         ids: ArrayList<String>
     ) = off (ids, groupIn)
 
-    @Method(name = "user-off", alias = ["uoff"], pmsLevel = CmdPermissionLevel.OP, order = 1, ignoreCheckers = [GroupCmdWorkingChecker::class],
+    @Method(name = "user-off", alias = ["uoff"], pmsLevel = CmdPermissionLevel.OP, order = 1, ignoreCheckers = [GroupCmdWorkingChecker::class, UserCmdWorkingChecker::class],
         title = "用户关闭")
     suspend fun off(
         @Argument(name = "用户", handler = UserArgHandler::class)

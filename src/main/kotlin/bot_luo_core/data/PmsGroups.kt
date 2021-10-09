@@ -11,7 +11,6 @@ import org.apache.logging.log4j.Level
  * # 权限组数据
  */
 object PmsGroups: DataObject("data/pms_groups.json", 10000L, false) {
-    override fun unload() {}
 
     private const val DESC_BLOCK = "屏蔽组，所有命令均为禁止状态(-1)"
     private const val DESC_NONE = "虚空组，所有命令均为中立(0)"

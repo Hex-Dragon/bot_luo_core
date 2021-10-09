@@ -1,7 +1,10 @@
 package bot_luo_core.bot
 
 import bot_luo_core.cli.CmdHandler
+import bot_luo_core.cli.commands.NoticeCmd
 import bot_luo_core.data.Data
+import bot_luo_core.data.Notice
+import bot_luo_core.data.Users
 import bot_luo_core.util.JsonWorker
 import bot_luo_core.util.Logger
 import bot_luo_core.util.Time
@@ -106,7 +109,7 @@ object BotLuo {
         GlobalEventChannel.subscribeAlways<MessageEvent>(priority = EventPriority.NORMAL) {
             if (this.sender is AnonymousMember) return@subscribeAlways
             if (this is MessageSyncEvent) return@subscribeAlways
-//            if (this !is GroupAwareMessageEvent || this.group.id != 565056329L) return@subscribeAlways
+            if (bots.find { it.id == this.sender.id } != null) return@subscribeAlways
             if (this is GroupAwareMessageEvent && !bot.isMainBotOf(this.group.id)) return@subscribeAlways
             CmdHandler.call(this)
             if (this.isIntercepted) Logger.log(this, Level.INFO) else Logger.log(this, Level.DEBUG)

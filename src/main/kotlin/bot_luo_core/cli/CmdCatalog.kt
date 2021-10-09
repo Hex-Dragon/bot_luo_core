@@ -34,6 +34,7 @@ object CmdCatalog {
             ExecuteCmd::class,
             HelpCmd::class,
             ListCmd::class,
+            NoticeCmd::class,
             PermissionCmd::class,
             PermissionGroupCmd::class,
             SayCmd::class,

@@ -76,8 +76,8 @@ abstract class Cmd(val context: CmdContext) {
     ) = CmdReceipt(
         time = context.time,
         success = false,
-        addCount = true,
-        setTime = true,
+        addCount = false,
+        setTime = false,
         addSpecialCount = addSpecialCount,
         uploadOutputFile = uploadFile
     )
@@ -95,7 +95,7 @@ abstract class Cmd(val context: CmdContext) {
         time = context.time,
         success = false,
         addCount = true,
-        setTime = true,
+        setTime = false,
         addSpecialCount = addSpecialCount,
         uploadOutputFile = uploadFile
     )
@@ -112,7 +112,7 @@ abstract class Cmd(val context: CmdContext) {
     ) = CmdReceipt(
         time = context.time,
         success = false,
-        addCount = true,
+        addCount = false,
         setTime = true,
         addSpecialCount = addSpecialCount,
         uploadOutputFile = uploadFile

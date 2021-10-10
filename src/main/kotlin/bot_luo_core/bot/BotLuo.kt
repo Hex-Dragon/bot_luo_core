@@ -37,7 +37,7 @@ object BotLuo {
     /**
      * ## 所有机器人实例列表
      */
-    private val bots get() =  Bot.instances
+    val bots get() =  Bot.instances
 
     /**
      * ## 机器人与群组映射关系

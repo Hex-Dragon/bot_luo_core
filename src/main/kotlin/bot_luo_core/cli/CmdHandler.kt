@@ -152,11 +152,11 @@ object CmdHandler {
                     context.user.cmdOnExecute(cmd)
                     context.group.cmdOnExecute(cmd)
 
-                    Logger.log(cmd, context, "开始执行")
+                    Logger.log(cmd, context, "开始执行", cmd.logLevel)
 
                     val res = cmd.executeWith(context, args)
 
-                    Logger.log(cmd, context, "执行完成：${res}")
+                    Logger.log(cmd, context, "执行完成：${res}", cmd.logLevel)
 
                     runBlocking { withLockedAccessing(context.user, context.group, Cmds) {
                         if (res.addCount) {
@@ -207,7 +207,7 @@ object CmdHandler {
                 } finally {
                     context.user.cmdFinished(cmd)
                     context.group.cmdFinished(cmd)
-                    Logger.log(cmd, context, "命令退出")
+                    Logger.log(cmd, context, "命令退出", cmd.logLevel)
                 }
                 return
             } catch (e: InvocationTargetException) {    //此时目标异常一定是Cli异常

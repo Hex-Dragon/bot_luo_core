@@ -7,6 +7,7 @@ import bot_luo_core.cli.annotation.Method
 import bot_luo_core.cli.exceptions.CliInternalError
 import bot_luo_core.data.Config.CMD_PREFIX
 import kotlinx.coroutines.runBlocking
+import org.apache.logging.log4j.Level
 import kotlin.jvm.Throws
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
@@ -30,8 +31,8 @@ import kotlin.reflect.full.primaryConstructor
  */
 class CmdExecutable(private val cmd: KClass<out Cmd>, private val meth: KFunction<CmdReceipt>) {
 
-    val cmdAnn: Command by lazy { cmd.findAnnotation()?:throw CliInternalError(NullPointerException ("命令类 $cmd 未被注解")) }
-    val methAnn: Method by lazy { meth.findAnnotation()?:throw CliInternalError(NullPointerException ("命令类 $cmd 中方法 ${meth.name} 未被注解")) }
+    val cmdAnn: Command = cmd.findAnnotation()?:throw CliInternalError(NullPointerException ("命令类 $cmd 未被注解"))
+    val methAnn: Method = meth.findAnnotation()?:throw CliInternalError(NullPointerException ("命令类 $cmd 中方法 ${meth.name} 未被注解"))
     val paramsAnn: Map<KParameter, Argument> by lazy { meth.parameters.filter { it.kind == KParameter.Kind.VALUE }.associateWith { it.findAnnotation()?: throw CliInternalError(NullPointerException ("命令类 $cmd 方法 ${meth.name} 参数 ${it.name} 未被注解")) } }
 
     val cmdName = cmdAnn.name
@@ -40,6 +41,8 @@ class CmdExecutable(private val cmd: KClass<out Cmd>, private val meth: KFunctio
     val methHead = listOf(methAnn.name, *methAnn.alias)
     val order = methAnn.order
     val pmsLevel = methAnn.pmsLevel
+
+    val logLevel = Level.getLevel(methAnn.defaultLogLevel) ?: Level.INFO
 
     val display = cmdAnn.display
     val id get() = "$cmdName-$methName"

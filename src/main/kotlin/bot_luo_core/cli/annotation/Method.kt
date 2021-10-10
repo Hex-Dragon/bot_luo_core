@@ -2,6 +2,7 @@ package bot_luo_core.cli.annotation
 
 import bot_luo_core.cli.Checker
 import bot_luo_core.cli.CmdPermissionLevel
+import org.apache.logging.log4j.Level
 import kotlin.reflect.KClass
 
 annotation class Method(
@@ -47,5 +48,12 @@ annotation class Method(
 
     val usage: String = "",
     val title: String = "",
-    val simples: Array<String> = []
+    val simples: Array<String> = [],
+
+    /**
+     * 默认的日志级别
+     *
+     * 除发生错误外的日志级别，为[Level]之一
+     */
+    val defaultLogLevel: String = "INFO"
 )

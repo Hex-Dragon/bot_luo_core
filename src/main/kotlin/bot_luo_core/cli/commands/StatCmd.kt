@@ -45,7 +45,7 @@ class StatCmd(context: CmdContext) : Cmd(context) {
                     "${k}：${map.values.sumOf { carrier.readCmdData(it).totalCount }}次",
                     map.entries
                 ) { (key, value), builder ->
-                    builder.td("-$key:")
+                        builder.td("-$key:")
                         .td("${carrier.readCmdData(value).totalCount}次")
                         .td(carrier.readCmdData(value).lastTime relativeToE context.time)
                 }
@@ -73,8 +73,10 @@ class StatCmd(context: CmdContext) : Cmd(context) {
             table.th("${name}统计 —— $id").br()
             filtered.groupBy { it.cmdName }.forEach { (k, v) ->
                 val map = v.associateBy { it.methName }
+                val total = map.values.sumOf { carrier.readCmdData(it).totalCount }
+                if (total > 0)
                 table.tr("$k:")
-                    .td("${map.values.sumOf { carrier.readCmdData(it).totalCount }}次")
+                    .td("${total}次")
                     .td(map.values.maxOf { carrier.readCmdData(it).lastTime } relativeToE context.time)
             }
             context.print(table.toString())

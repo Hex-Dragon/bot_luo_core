@@ -37,4 +37,9 @@ object Config {
         "UserCmdWorkingChecker",
         "BotRunningChecker"
     )
+
+    /**
+     * 主时钟周期(ms)
+     */
+    val CLOCK_CYCLE = 60_000L
 }

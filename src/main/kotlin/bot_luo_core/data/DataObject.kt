@@ -3,10 +3,9 @@ package bot_luo_core.data
 import bot_luo_core.util.GSON
 import bot_luo_core.util.clear
 import bot_luo_core.util.set
-import com.github.salomonbrys.kotson.put
-import com.github.salomonbrys.kotson.putAll
-import com.github.salomonbrys.kotson.removeAll
+import com.github.salomonbrys.kotson.*
 import com.google.gson.Gson
+import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.google.gson.reflect.TypeToken
@@ -42,7 +41,9 @@ abstract class DataObject(
 ): Data(filePath, autoSaveInterval, saveAndUnload) {
 
     /**
-     * 使用[getObj]和[setObj]进行访问
+     * 使用[getObj]和[setObj]等进行访问
+     *
+     * 若直接访问并进行了修改则需要手动调用[markDirty]，否则修改不能被保存
      */
     final override val element: JsonObject
 
@@ -75,15 +76,13 @@ abstract class DataObject(
      *
      * 自动更新访问时间
      */
-    inline fun <reified T> getObj(key: String): T? {
+    inline fun <reified T : Any> getObj(key: String): T? {
         return if (element.has(key)) {
-            val type = object : TypeToken<T>() {}.type
-            GSON.fromJson(element[key], type)
+            GSON.fromJson(element[key], typeToken<T>())
         } else null
     }
     inline fun <reified T: Map<*, *>> getObj(): T {
-        val type = object : TypeToken<T>() {}.type
-        return GSON.fromJson(element, type)
+        return GSON.fromJson(element, typeToken<T>())
     }
 
     /**
@@ -104,5 +103,13 @@ abstract class DataObject(
         element.clear()
         value?.forEach{ (k,v) -> element.put(k to GSON.toJsonTree(v)) }
         changed = true
+    }
+
+    /**
+     * 移除一个键
+     */
+    fun removeObj(key: String): JsonElement? {
+        changed = true
+        return element.remove(key)
     }
 }

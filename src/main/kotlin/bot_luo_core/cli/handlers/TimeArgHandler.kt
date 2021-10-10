@@ -19,13 +19,13 @@ class TimeArgHandler: ArgHandler<Long> {
         if (reader.canRead() && reader.peek()=='~') {
             context?: throw ContextNeeded(pos, "~")
             reader.skip()
+            if (!reader.canRead()) return context.time
             val calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT+08:00"))
             val back = reader.peek() == '-'
             if (reader.peek() in "-+") reader.skip()
             var i = 0
-            do {
-                val c = reader.read()
-                when (c) {
+            while (reader.canRead() && !Character.isWhitespace(reader.peek())) {
+                when (val c = reader.read()) {
                     in '0'..'9' -> {
                         i *= 10
                         i += c - '0'
@@ -52,9 +52,8 @@ class TimeArgHandler: ArgHandler<Long> {
                     }
                     else -> throw SyntaxError(pos,"无效的时间单位 $c")
                 }
-            } while (reader.canRead() && !Character.isWhitespace(reader.peek()))
-            if (i != 0) throw SyntaxError(pos,"$i 缺少单位")
-            return calendar.timeInMillis
+            }
+            return calendar.timeInMillis + if (back) -i else i
         } else {
             val str = reader.readString()
             try {

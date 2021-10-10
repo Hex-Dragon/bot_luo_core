@@ -4,13 +4,12 @@ import bot_luo_core.cli.CmdHandler
 import bot_luo_core.cli.commands.NoticeCmd
 import bot_luo_core.data.Data
 import bot_luo_core.data.Notice
+import bot_luo_core.data.Schedule
 import bot_luo_core.data.Users
 import bot_luo_core.util.JsonWorker
 import bot_luo_core.util.Logger
 import bot_luo_core.util.Time
-import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.BotFactory
 import net.mamoe.mirai.contact.*
@@ -121,6 +120,10 @@ object BotLuo {
         GlobalEventChannel.subscribeAlways<VirtualMessageEvent>(priority = EventPriority.NORMAL) {
             CmdHandler.call(this)
             if (this.isIntercepted) Logger.log(this, Level.INFO) else Logger.log(this, Level.DEBUG)
+        }
+
+        CoroutineScope(Dispatchers.IO).launch {
+            Schedule.mainClock()
         }
     }
 

@@ -34,13 +34,17 @@ object Logger {
     fun msgLog(level: Level, msg: String) = msgLogger.log(level, msg)
 
     fun log(e: MessageEvent, level: Level = Level.INFO) = when(e) {
-        is GroupAwareMessageEvent -> log(e, level)
+        is GroupMessageEvent -> log(e, level)
+        is GroupTempMessageEvent -> log(e, level)
         is UserMessageEvent -> log(e, level)
         else -> msgLog(level, "[U:${e.sender.nameCardOrNick}(${e.sender.id})] -> ${e.message.serializeToMiraiCode()}")
     }
 
-    fun log(e: GroupAwareMessageEvent, level: Level = Level.INFO) =
+    fun log(e: GroupMessageEvent, level: Level = Level.INFO) =
         msgLog(level, "[U:${e.sender.nameCardOrNick}(${e.sender.id})][G:${e.group.name}(${e.group.id})] -> ${e.message.serializeToMiraiCode()}")
+
+    fun log(e: GroupTempMessageEvent, level: Level = Level.INFO) =
+        msgLog(level, "[U:${e.sender.nameCardOrNick}(${e.sender.id})][B:${e.bot.nick}(${e.bot.id})] -> ${e.message.serializeToMiraiCode()}")
 
     fun log(e: UserMessageEvent, level: Level = Level.INFO) =
         msgLog(level, "[U:${e.sender.nameCardOrNick}(${e.sender.id})][B:${e.bot.nick}(${e.bot.id})] -> ${e.message.serializeToMiraiCode()}")

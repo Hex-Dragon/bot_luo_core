@@ -43,12 +43,12 @@ class CmdExecutable(private val cmd: KClass<out Cmd>, private val meth: KFunctio
 
     val display = cmdAnn.display
     val id get() = "$cmdName-$methName"
-    val idFixed get() = if (methName == "") cmdName else id
+    val idFixed get() = if (methName == "") cmdName else this.id
     val head get() = CMD_PREFIX[0]+idFixed
     val headPara = when {
         methAnn.alias.isEmpty() -> head
         methName == "" -> "${CMD_PREFIX[0]}$cmdName[-${methAnn.alias.joinToString(",")}]"
-        else -> "${CMD_PREFIX[0]}$id(${methAnn.alias.joinToString(",")})"
+        else -> "${CMD_PREFIX[0]}${this.id}(${methAnn.alias.joinToString(",")})"
     }
 
     val checkers = LinkedHashSet<KClass<out Checker>>().apply{
@@ -90,7 +90,7 @@ class CmdExecutable(private val cmd: KClass<out Cmd>, private val meth: KFunctio
     }
 
     override fun toString(): String {
-        return id
+        return this.id
     }
 }
 

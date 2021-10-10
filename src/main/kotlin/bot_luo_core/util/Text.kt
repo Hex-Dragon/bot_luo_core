@@ -37,7 +37,7 @@ object Text {
     }
 
     fun String.firstNotWhitespace(max: Int = this.length): Char? {
-        for (i in 0 until max) {
+        for (i in 0 until maxOf(max, length)) {
             if (!Character.isWhitespace(this[i])) return this[i]
         }
         return null

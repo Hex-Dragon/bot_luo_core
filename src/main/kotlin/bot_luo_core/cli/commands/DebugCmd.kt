@@ -10,6 +10,7 @@ import bot_luo_core.data.Users
 import bot_luo_core.util.TableBuilder
 import bot_luo_core.util.Text.limitStart
 import bot_luo_core.util.Time.relativeTo
+import java.text.DecimalFormat
 
 @Command(
     name = "debug",
@@ -24,6 +25,7 @@ class DebugCmd(context: CmdContext) : Cmd(context) {
         val table = TableBuilder(4)
         table.th("调试信息 ——").br()
         table.tr("start_at:").td( BotLuo.startAt relativeTo context.time)
+        table.tr("mem_use:").td(formatMem(Runtime.getRuntime().totalMemory()))
         table.th()
         table.prettyLines("active_groups(${Groups.activeGroupsCount}):", Groups.groups.keys) { item, builder ->
             builder.td(item)
@@ -38,5 +40,19 @@ class DebugCmd(context: CmdContext) : Cmd(context) {
         }
         context.print(table.toString())
         return SUCCESS
+    }
+
+    companion object {
+        fun formatMem(sizeIn: Long): String {
+            val format = DecimalFormat(",###.##")
+            var size = sizeIn.toDouble()
+            if (size < 1024) return format.format(size) + "B"
+            size /= 1024
+            if (size < 1024) return format.format(size) + "KB"
+            size /= 1024
+            if (size < 1024) return format.format(size) + "MB"
+            size /= 1024
+            return format.format(size) + "GB"
+        }
     }
 }

@@ -13,6 +13,7 @@ import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.event.EventPriority
 import net.mamoe.mirai.event.GlobalEventChannel
 import net.mamoe.mirai.event.events.GroupAwareMessageEvent
+import net.mamoe.mirai.event.events.GroupMessageEvent
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.code.MiraiCode.deserializeMiraiCode
 import net.mamoe.mirai.message.data.At
@@ -22,7 +23,7 @@ object Notice: DataObject("data/notice.json", 10000, false)
 {
     init {
         GlobalEventChannel.subscribeAlways<MessageEvent>(priority = EventPriority.HIGH) {
-            if (this is GroupAwareMessageEvent && !bot.isMainBotOf(this.group.id)) return@subscribeAlways
+            if (this is GroupMessageEvent && !bot.isMainBotOf(this.group.id)) return@subscribeAlways
             check(
                 Users.readUser(this.sender.id),
                 if (this is GroupAwareMessageEvent) Groups.readGroup(this.group.id) else Groups.virtualGroup,
@@ -38,6 +39,9 @@ object Notice: DataObject("data/notice.json", 10000, false)
         }
     }
 
+    operator fun get(id: String): ArrayList<NoticeData>? {
+        return getObj<ArrayList<NoticeData>>(id)
+    }
     operator fun get(id: Long): ArrayList<NoticeData>? {
         return getObj<ArrayList<NoticeData>>(id.toString())
     }
@@ -73,7 +77,7 @@ object Notice: DataObject("data/notice.json", 10000, false)
                 user.apply { bot = botIn }.withServeBot {
                     send(it)
                 }
-            setObj(user.id.toString(), null)
+            removeObj(user.id.toString())
         }
     }
 }

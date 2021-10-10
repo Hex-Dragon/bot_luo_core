@@ -2,9 +2,11 @@ package bot_luo_core.data
 
 import bot_luo_core.util.GSON
 import bot_luo_core.util.clear
+import bot_luo_core.util.indices
 import com.github.salomonbrys.kotson.removeAll
 import com.google.gson.Gson
 import com.google.gson.JsonArray
+import com.google.gson.JsonElement
 import com.google.gson.JsonParser
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.sync.Mutex
@@ -39,7 +41,9 @@ abstract class DataArray(
 ): Data(filePath, autoSaveInterval, saveAndUnload) {
 
     /**
-     * 使用[getObj]和[setObj]进行访问
+     * 使用[getObj]和[setObj]等进行访问
+     *
+     * 若直接访问并进行了修改则需要手动调用[markDirty]，否则修改不能被保存
      */
     final override val element: JsonArray
 
@@ -101,5 +105,17 @@ abstract class DataArray(
         element.clear()
         value.forEach { v -> element.add(GSON.toJsonTree(v)) }
         changed = true
+    }
+
+    fun addObj(any: Any) {
+        element.add(GSON.toJsonTree(any))
+        changed = true
+    }
+
+    fun removeObj(index: Int): JsonElement? {
+        changed = true
+        return if (index in element.indices)
+            element.remove(index)
+        else null
     }
 }

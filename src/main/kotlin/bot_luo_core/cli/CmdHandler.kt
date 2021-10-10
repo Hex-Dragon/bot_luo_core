@@ -13,6 +13,7 @@ import bot_luo_core.util.Text.limitEnd
 import bot_luo_core.util.Time.notSameDayTo
 import kotlinx.coroutines.*
 import net.mamoe.mirai.event.events.GroupAwareMessageEvent
+import net.mamoe.mirai.event.events.GroupMessageEvent
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.At
 import net.mamoe.mirai.message.data.content
@@ -31,18 +32,18 @@ object CmdHandler {
      *
      * 初步过滤消息，若消息以[CMD_PREFIX]开头则发起命令执行，并拦截这个消息事件
      */
-    suspend fun call(event: MessageEvent) {
-        if (event.message.content.firstNotWhitespace(3) !in CMD_PREFIX) return
+    suspend fun call(event: MessageEvent): Job? {
+        if (event.message.content.firstNotWhitespace(3) !in CMD_PREFIX) return null
         event.intercept()
         val context = CmdContext(
             MessageReader(event.message),
             Users.readUser(event.sender.id).apply { contact = event.sender } ,
-            if (event is GroupAwareMessageEvent)
+            if (event is GroupMessageEvent)
                 Groups.readGroup(event.group.id)
             else
                 Groups.virtualGroup
         )
-        call(context)
+        return call(context)
     }
 
     /**
@@ -50,10 +51,10 @@ object CmdHandler {
      *
      * @see call
      */
-    suspend fun call(event: VirtualMessageEvent) {
-        if (event.message.content.firstNotWhitespace(3) !in CMD_PREFIX) return
+    suspend fun call(event: VirtualMessageEvent): Job? {
+        if (event.message.content.firstNotWhitespace(3) !in CMD_PREFIX) return null
         event.intercept()
-        call(event.context)
+        return call(event.context)
     }
 
     /**
@@ -63,7 +64,7 @@ object CmdHandler {
      *
      * 每次call会新建一个[CoroutineScope]
      */
-    private suspend fun call(context: CmdContext) { CoroutineScope(Dispatchers.IO).launch {
+    suspend fun call(context: CmdContext): Job { CoroutineScope(Dispatchers.IO).launch {
         try {
             withAccessing(context.user, context.group, Cmds) {
                 execute(context)
@@ -126,7 +127,7 @@ object CmdHandler {
                 }
             }
         }
-    } }
+    }.let { return it } }
 
     /**
      * ## 执行命令

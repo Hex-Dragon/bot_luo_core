@@ -38,6 +38,7 @@ object CmdCatalog {
             PermissionCmd::class,
             PermissionGroupCmd::class,
             SayCmd::class,
+            ScheduleCmd::class,
             StatCmd::class,
             SwitchCmd::class,
             TagCmd::class

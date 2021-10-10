@@ -21,7 +21,7 @@ import net.mamoe.mirai.message.data.MessageChain
 @Command(
     name = "notice",
     display = "提醒",
-    alias = [],
+    alias = ["@"],
     usage = "对用户添加提醒，当指定用户下一次发言时发送提醒消息",
     caption = [
         "不设置限定群组时默认为当前群组"

@@ -52,7 +52,10 @@ object Logger {
     fun log(e: VirtualMessageEvent, level: Level = Level.INFO) =
         eventLog(level, "-> <VMSG> [U:${e.user.name}(${e.user.id})][G:${e.group.name}(${e.group.id})] -> ${e.message.serializeToMiraiCode()}")
 
-    fun msgLog(m: MessageChain, u: User, g:Group, level: Level = Level.INFO) = when {
+    fun msgLog(m: MessageChain, u: User?, g:Group?, level: Level = Level.INFO) = when {
+        g == null && u != null -> msgLog(level, "[U:${u.name}(${u.id})] <- ${m.serializeToMiraiCode()}")
+        u == null && g != null -> msgLog(level, "[G:${g.name}(${g.id})] <- ${m.serializeToMiraiCode()}")
+        g == null || u == null -> {}
         !g.virtual -> msgLog(level, "[U:${u.name}(${u.id})][G:${g.name}(${g.id})] <- ${m.serializeToMiraiCode()}")
         !u.virtual -> msgLog(level, "[U:${u.name}(${u.id})] <- ${m.serializeToMiraiCode()}")
         else -> msgLog(level, "|<- ${m.serializeToMiraiCode()}")

@@ -41,7 +41,8 @@ object CmdCatalog {
             ScheduleCmd::class,
             StatCmd::class,
             SwitchCmd::class,
-            TagCmd::class
+            TagCmd::class,
+            UserCmd::class
         )
         Logger.sysLog(Level.DEBUG, "内建命令注册完毕")
     }

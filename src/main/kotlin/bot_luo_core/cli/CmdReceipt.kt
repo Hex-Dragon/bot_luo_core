@@ -1,6 +1,5 @@
 package bot_luo_core.cli
 
-import java.util.*
 import kotlin.collections.ArrayList
 
 data class CmdReceipt(
@@ -8,7 +7,6 @@ data class CmdReceipt(
     val success: Boolean,
     val addCount: Boolean,
     val setTime: Boolean,
-    val addSpecialCount: Boolean,
     val messages: ArrayList<String> = ArrayList(),
     val f: String? = null,
     val b: String? = null,

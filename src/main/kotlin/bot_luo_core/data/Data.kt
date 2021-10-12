@@ -118,6 +118,10 @@ abstract class Data(
     fun markDirty() {
         changed = true
     }
+
+    fun isChanged(): Boolean {
+        return changed
+    }
 }
 
 /**

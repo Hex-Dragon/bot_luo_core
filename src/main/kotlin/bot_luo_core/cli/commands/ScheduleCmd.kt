@@ -227,7 +227,7 @@ class ScheduleCmd(context: CmdContext) : Cmd(context) {
             context.withBackendBot { contact ->
                 val cmdRaw = event.cmd.deserializeMiraiCode()
                 val cmdOld = cmdRaw.uploadResource(contact)
-                table.p(cmdOld).br().p("->").br().p(cmd)
+                table.p(cmdOld).br().p("->").br().p(cmd).br()
                 event.cmd = cmd.serializeToMiraiCode()
                 genEventInTable(table, event)
                 contact.sendMessageWithLog(table.toMessage())

@@ -18,7 +18,7 @@ import net.mamoe.mirai.message.data.At
 class User internal constructor (
     override val id: Long,
     override var bot: Bot? = null
-) : CmdDataObj("data/users/$id.json", 30000L, true), BotContact {
+) : CmdDataObj("data/users/$id.json", 15000L, true), BotContact {
     override val contactType = BotContactType.Single
     override val defaultData: CmdData get() = CmdData(0,0,0,true)//用户命令默认开启
     override var contact: Contact? = null

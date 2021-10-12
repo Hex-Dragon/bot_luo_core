@@ -119,7 +119,7 @@ class TableBuilder (
             0 -> {}
             1 -> {
                 tr(title)
-                action(content.elementAt(0), this)
+                action(content.first(), this)
             }
             else -> {
                 tr(title)

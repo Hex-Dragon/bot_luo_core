@@ -21,7 +21,7 @@ class DebugCmd(context: CmdContext) : Cmd(context) {
     @Suppress("UNCHECKED_CAST")
     @Method(name = "", alias = ["show"], pmsLevel = CmdPermissionLevel.DEBUG)
     fun show (): CmdReceipt {
-        val table = TableBuilder(4)
+        val table = TableBuilder(2)
         table.th("调试信息 ——").br()
         table.tr("ST:").td( BotLuo.startAt relativeTo context.time)
         table.tr("MEM:").td(formatMem(Runtime.getRuntime().totalMemory()))

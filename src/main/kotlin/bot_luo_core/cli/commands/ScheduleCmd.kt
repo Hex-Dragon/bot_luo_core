@@ -59,7 +59,7 @@ class ScheduleCmd(context: CmdContext) : Cmd(context) {
 
     /*  ========================  get  ========================  */
 
-    @Method(name = "get", alias = ["g"], pmsLevel = CmdPermissionLevel.OP)
+    @Method(name = "get", alias = ["g",""], pmsLevel = CmdPermissionLevel.OP)
     suspend fun get(
         @Argument(name = "序号")
         id: Int
@@ -157,7 +157,7 @@ class ScheduleCmd(context: CmdContext) : Cmd(context) {
             }
             val table = TableBuilder(4)
             table.th("时刻表修改 —— 事件($id)[时刻]").br()
-            table.tr(Time.format(event.time)).td("->").td(Time.format(time))
+            table.p(Time.format(event.time)).sp().p("->").sp().p(Time.format(time)).br()
             event.time = time
             event.user = context.user.id
             event.group = context.group.id
@@ -189,7 +189,7 @@ class ScheduleCmd(context: CmdContext) : Cmd(context) {
             }
             val table = TableBuilder(4)
             table.th("时刻表修改 —— 事件($id)[周期]").br()
-            table.tr(Time.formatSpan(event.cycle)).td("->").td(Time.formatSpan(cycle))
+            table.p(Time.formatSpan(event.cycle)).sp().p("->").sp().p(Time.formatSpan(cycle)).br()
             event.cycle = cycle
             event.user = context.user.id
             event.group = context.group.id

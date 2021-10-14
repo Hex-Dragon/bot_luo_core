@@ -263,6 +263,7 @@ object BotLuo {
     }
 
     fun saveAll() {
+        Data.savingJobs.keys.forEach { it.saveJob?.cancel(CancellationException("Saving All")) }
         Data.savingJobs.values.forEach { it.invoke() }
         Data.savingJobs.clear()
     }

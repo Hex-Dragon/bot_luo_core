@@ -33,7 +33,7 @@ abstract class Data(
     private val saveAndUnload: Boolean
 ) : Mutex by Mutex() {
 
-    private var saveJob: Job? = null
+    internal var saveJob: Job? = null
 
     abstract val element: JsonElement
 

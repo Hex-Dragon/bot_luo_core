@@ -23,8 +23,7 @@ class ControlCmd(context: CmdContext) : Cmd(context) {
 
     @Method(name = "s", alias = [], pmsLevel = CmdPermissionLevel.OP, title = "保存")
     fun save (): CmdReceipt {
-        Users.saveAll()
-        Groups.saveAll()
+        BotLuo.saveAll()
         context.print("数据已保存")
         return SUCCESS
     }

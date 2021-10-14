@@ -62,9 +62,9 @@ object Notice: DataObject("data/notice.json", 10000, false)
 
             suspend fun send(contact: Contact) {
                 val mcb = MessageChainBuilder()
+                mcb.add(At(user.id))
                 for (i in list.indices) {
                     val n = list[i]
-                    mcb.add(At(user.id))
                     mcb.add("${n.fromName.limitMid(10)}(${n.fromId})于${n.time relativeToE Time.time()}提醒你：\n")
                     val raw = n.message.deserializeMiraiCode()
                     val msg = raw.uploadResource(contact)

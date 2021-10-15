@@ -25,6 +25,7 @@ class CmdParser(private val reader: MessageReader) {
     init {
         val cmdName: String
         val methName: String
+        reader.skipWhitespace()
         if (reader.peek() in CMD_PREFIX) reader.skip()
         if (reader.canRead() && reader.isWhitespace(reader.peek())) reader.skip()
         val head = reader.readStringUntilWhiteSpace()

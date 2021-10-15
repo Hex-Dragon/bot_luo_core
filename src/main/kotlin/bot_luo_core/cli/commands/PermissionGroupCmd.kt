@@ -48,7 +48,7 @@ class PermissionGroupCmd(context: CmdContext) : Cmd(context) {
     fun get (
         @Argument(name = "权限组", handler = PmsGroupArgHandler::class)
         pmsGroup: PmsGroup,
-        @Argument(name = "命令", handler = PmsGroupArgHandler::class)
+        @Argument(name = "命令", handler = CmdExArgHandler::class)
         cmds: List<CmdExecutable>
     ): CmdReceipt {
         val table = TableBuilder(4)

@@ -151,6 +151,7 @@ object CmdHandler {
                 try {
                     context.user.cmdOnExecute(cmd)
                     context.group.cmdOnExecute(cmd)
+                    Cmds.cmdOnExecute(cmd)
 
                     Logger.log(cmd, context, "开始执行", cmd.logLevel)
 
@@ -207,6 +208,7 @@ object CmdHandler {
                 } finally {
                     context.user.cmdFinished(cmd)
                     context.group.cmdFinished(cmd)
+                    Cmds.cmdFinished(cmd)
                     Logger.log(cmd, context, "命令退出", cmd.logLevel)
                 }
                 return

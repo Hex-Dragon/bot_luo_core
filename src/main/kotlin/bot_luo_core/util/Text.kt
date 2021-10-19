@@ -100,4 +100,10 @@ object Text {
         }
         return mcb.build()
     }
+
+    fun formatUUID(uuid: String): String {
+        return uuid.replace("-", "").let {
+            "${it.substring(0..8)}-"
+        }
+    }
 }
